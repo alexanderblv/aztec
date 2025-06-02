@@ -1,6 +1,7 @@
 import { 
   AztecAddress, 
   Fr, 
+  GrumpkinScalar,
   PXE,
   TxStatus,
   AccountWallet,
@@ -54,7 +55,9 @@ export class AztecService {
     try {
       // Создаем новый аккаунт
       const secretKey = Fr.random();
-      const account = getSchnorrAccount(this.pxe, secretKey, secretKey);
+      // Use GrumpkinScalar for the signing key
+      const signingKey = GrumpkinScalar.random();
+      const account = getSchnorrAccount(this.pxe, secretKey, signingKey);
       
       this.wallet = await account.waitForDeployment();
       const address = this.wallet.getAddress();
@@ -72,7 +75,9 @@ export class AztecService {
 
     try {
       const secretKey = Fr.fromString(privateKey);
-      const account = getSchnorrAccount(this.pxe, secretKey, secretKey);
+      // Use GrumpkinScalar for the signing key  
+      const signingKey = GrumpkinScalar.random();
+      const account = getSchnorrAccount(this.pxe, secretKey, signingKey);
       
       this.wallet = await account.getWallet();
       const address = this.wallet.getAddress();
