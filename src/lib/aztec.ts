@@ -5,7 +5,7 @@ import {
   TxStatus,
   AccountWallet,
 } from '@aztec/aztec.js';
-import { getSchnorrAccount } from '@aztec/accounts';
+import { getSchnorrAccount } from '@aztec/accounts/schnorr';
 import { Contract } from '@aztec/aztec.js';
 // TODO: Import will be available after contract compilation
 // import { PrivateAuctionContract } from './contracts/PrivateAuction.js';

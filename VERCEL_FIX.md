@@ -202,4 +202,47 @@ npm run build
 
 To fix the immediate build error, simply remove `createAccount` from the import statement in `src/lib/aztec.ts` line 8.
 
-The rest of the code is correct and follows the current Aztec.js API patterns. 
+The rest of the code is correct and follows the current Aztec.js API patterns.
+
+# Build Process Fixes and Improvements
+
+This document tracks the fixes applied to resolve build errors and improve the deployment process.
+
+## Issue #2: @aztec/accounts Import Error (Fixed)
+
+### Problem
+Build was failing with the error:
+```
+Type error: Cannot find module '@aztec/accounts' or its corresponding type declarations.
+```
+
+The import statement was using the wrong path:
+```typescript
+import { getSchnorrAccount } from '@aztec/accounts';
+```
+
+### Root Cause
+The `@aztec/accounts` package uses subpath exports. The `getSchnorrAccount` function is located in a specific submodule that must be imported using the correct subpath.
+
+### Solution
+Updated the import statement in `src/lib/aztec.ts` to use the correct subpath:
+
+```typescript
+// Before (incorrect)
+import { getSchnorrAccount } from '@aztec/accounts';
+
+// After (correct)
+import { getSchnorrAccount } from '@aztec/accounts/schnorr';
+```
+
+### Technical Details
+- According to the [@aztec/accounts documentation](https://www.npmjs.com/package/@aztec/accounts), the package exports account types through specific subpaths
+- Schnorr accounts should be imported from `@aztec/accounts/schnorr`
+- This pattern follows Node.js subpath exports convention
+- The package structure includes multiple account types: Schnorr, ECDSA, and SingleKey
+
+### Files Modified
+- `src/lib/aztec.ts`: Fixed import statement on line 8
+
+### Verification
+After this fix, the TypeScript compilation should succeed. The build error should be resolved as the module resolution will now find the correct export. 
