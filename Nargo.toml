@@ -1,0 +1,8 @@
+[package]
+name = "private_auction"
+type = "contract"
+authors = [""]
+compiler_version = ">=0.18.0"
+
+[dependencies]
+aztec = { git="https://github.com/AztecProtocol/aztec-packages/", tag="#aztec-packages-v0.25.0", directory="noir/noir-repo/noir_stdlib" } 
