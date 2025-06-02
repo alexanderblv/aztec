@@ -13,11 +13,6 @@
       "NEXT_PUBLIC_AZTEC_PXE_URL": "$NEXT_PUBLIC_AZTEC_PXE_URL"
     }
   },
-  "functions": {
-    "app/**/*": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "regions": ["iad1"],
   "rewrites": [
     {
