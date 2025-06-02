@@ -1,14 +1,7 @@
-import { 
-  AztecAddress, 
-  Fr, 
-  GrumpkinScalar,
-  PXE,
-  TxStatus,
-  AccountWallet,
-  Contract
-} from '@aztec/aztec.js';
-// Import will be done dynamically to avoid build issues
-// import { getSchnorrAccount } from '@aztec/accounts/schnorr';
+// All Aztec imports will be done dynamically to avoid build issues
+// Dynamic imports will be used throughout the class
+// import { AztecAddress, Fr, GrumpkinScalar, PXE, TxStatus, AccountWallet, Contract } from '@aztec/aztec.js'; // Will be imported dynamically
+// import { getSchnorrAccount } from '@aztec/accounts/schnorr'; // Will be imported dynamically
 // TODO: Import will be available after contract compilation
 // import { PrivateAuctionContract } from './contracts/PrivateAuction.js';
 
