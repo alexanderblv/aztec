@@ -86,3 +86,120 @@ console.log('Aztec PXE URL:', process.env.NEXT_PUBLIC_AZTEC_PXE_URL);
 2. Убедитесь что переменные добавлены для правильного окружения (Production/Preview/Development)
 3. Попробуйте переразвернуть проект
 4. Проверьте логи развертывания в Vercel Dashboard 
+
+# Vercel Deployment Fix
+
+## Build Error Solution
+
+The build is failing because `createAccount` is not exported from `@aztec/aztec.js` in the current version. Here's how to fix it:
+
+### 1. Fix the Import Issue
+
+The error occurs at `src/lib/aztec.ts:8:3` where `createAccount` is imported but doesn't exist.
+
+**Solution:**
+Remove `createAccount` from the imports in `src/lib/aztec.ts`:
+
+```typescript
+// BEFORE (causing error):
+import { 
+  AztecAddress, 
+  Contract, 
+  createPXEClient, 
+  Fr, 
+  PXE,
+  TxStatus,
+  createAccount,  // ❌ This doesn't exist
+  AccountWallet,
+  getSchnorrAccount,
+} from '@aztec/aztec.js';
+
+// AFTER (fixed):
+import { 
+  AztecAddress, 
+  Contract, 
+  createPXEClient, 
+  Fr, 
+  PXE,
+  TxStatus,
+  AccountWallet,
+  getSchnorrAccount,
+} from '@aztec/aztec.js';
+```
+
+### 2. Account Creation in Current Aztec.js
+
+In the current Aztec.js API, accounts are created using `getSchnorrAccount` instead of `createAccount`. The existing code in the `createWallet()` method is already correct:
+
+```typescript
+async createWallet(): Promise<string> {
+  if (!this.pxe) throw new Error('PXE не инициализирован');
+
+  try {
+    // ✅ This is the correct way to create accounts
+    const secretKey = Fr.random();
+    const account = getSchnorrAccount(this.pxe, secretKey, secretKey);
+    
+    this.wallet = await account.waitForDeployment();
+    const address = this.wallet.getAddress();
+    
+    console.log('Новый кошелек создан:', address.toString());
+    return address.toString();
+  } catch (error) {
+    console.error('Ошибка создания кошелька:', error);
+    throw error;
+  }
+}
+```
+
+### 3. Package Dependencies
+
+Make sure your `package.json` has the correct Aztec dependencies:
+
+```json
+{
+  "dependencies": {
+    "@aztec/aztec.js": "latest",
+    "@aztec/accounts": "latest",
+    "@aztec/types": "latest"
+  }
+}
+```
+
+### 4. Contract Compilation
+
+Before deploying, you need to compile the Noir contract:
+
+```bash
+npm run compile
+```
+
+This will generate the TypeScript bindings for your contract.
+
+### 5. Environment Setup
+
+For local development:
+
+```bash
+# Install dependencies
+npm install
+
+# Compile contracts
+npm run compile
+
+# Start development server
+npm run dev
+```
+
+For deployment:
+
+```bash
+# Build for production
+npm run build
+```
+
+## Quick Fix for Immediate Deployment
+
+To fix the immediate build error, simply remove `createAccount` from the import statement in `src/lib/aztec.ts` line 8.
+
+The rest of the code is correct and follows the current Aztec.js API patterns. 

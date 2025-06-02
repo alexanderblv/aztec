@@ -1,15 +1,14 @@
 import { 
   AztecAddress, 
-  Contract, 
-  createPXEClient, 
   Fr, 
   PXE,
   TxStatus,
-  createAccount,
   AccountWallet,
-  getSchnorrAccount,
 } from '@aztec/aztec.js';
-import { PrivateAuctionContract } from './contracts/PrivateAuction.js';
+import { getSchnorrAccount } from '@aztec/accounts';
+import { Contract } from '@aztec/aztec.js';
+// TODO: Import will be available after contract compilation
+// import { PrivateAuctionContract } from './contracts/PrivateAuction.js';
 
 export interface AuctionInfo {
   itemName: string;
@@ -39,6 +38,8 @@ export class AztecService {
 
   async initialize(pxeUrl: string = 'http://localhost:8080'): Promise<void> {
     try {
+      // Import createPXEClient dynamically to avoid module issues
+      const { createPXEClient } = await import('@aztec/aztec.js');
       this.pxe = createPXEClient(pxeUrl);
       console.log('Подключение к Aztec PXE успешно');
     } catch (error) {
@@ -88,13 +89,14 @@ export class AztecService {
     if (!this.wallet) throw new Error('Кошелек не подключен');
 
     try {
-      // Развертываем контракт
-      const contract = await PrivateAuctionContract.deploy(this.wallet).send().deployed();
-      this.contract = contract;
-      this.contractAddress = contract.address;
-      
-      console.log('Контракт развернут по адресу:', this.contractAddress.toString());
-      return this.contractAddress.toString();
+      // TODO: This will need to be updated once contract is compiled
+      throw new Error('Contract deployment requires compiled contract - please run "npm run compile" first');
+      // const contract = await PrivateAuctionContract.deploy(this.wallet).send().deployed();
+      // this.contract = contract;
+      // this.contractAddress = contract.address;
+      // 
+      // console.log('Контракт развернут по адресу:', this.contractAddress.toString());
+      // return this.contractAddress.toString();
     } catch (error) {
       console.error('Ошибка развертывания контракта:', error);
       throw error;
@@ -106,9 +108,11 @@ export class AztecService {
 
     try {
       this.contractAddress = AztecAddress.fromString(contractAddress);
-      this.contract = await PrivateAuctionContract.at(this.contractAddress, this.wallet);
-      
-      console.log('Подключен к контракту:', contractAddress);
+      // TODO: This will need to be updated once contract is compiled
+      throw new Error('Contract connection requires compiled contract - please run "npm run compile" first');
+      // this.contract = await PrivateAuctionContract.at(this.contractAddress, this.wallet);
+      // 
+      // console.log('Подключен к контракту:', contractAddress);
     } catch (error) {
       console.error('Ошибка подключения к контракту:', error);
       throw error;
