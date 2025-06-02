@@ -7,7 +7,8 @@ import {
   AccountWallet,
   Contract
 } from '@aztec/aztec.js';
-import { getSchnorrAccount } from '@aztec/accounts/schnorr';
+// Import will be done dynamically to avoid build issues
+// import { getSchnorrAccount } from '@aztec/accounts/schnorr';
 // TODO: Import will be available after contract compilation
 // import { PrivateAuctionContract } from './contracts/PrivateAuction.js';
 
@@ -32,10 +33,10 @@ export interface Winner {
 }
 
 export class AztecService {
-  private pxe: PXE | null = null;
-  private wallet: AccountWallet | null = null;
+  private pxe: any = null;
+  private wallet: any = null;
   private contract: any = null;
-  private contractAddress: AztecAddress | null = null;
+  private contractAddress: any = null;
 
   async initialize(pxeUrl: string = 'http://localhost:8080'): Promise<void> {
     try {
@@ -53,14 +54,18 @@ export class AztecService {
     if (!this.pxe) throw new Error('PXE не инициализирован');
 
     try {
+      // Import necessary classes dynamically
+      const { Fr, GrumpkinScalar } = await import('@aztec/aztec.js');
+      const { getSchnorrAccount } = await import('@aztec/accounts/schnorr');
+      
       // Создаем новый аккаунт
       const secretKey = Fr.random();
       // Use GrumpkinScalar for the signing key
       const signingKey = GrumpkinScalar.random();
       const account = getSchnorrAccount(this.pxe, secretKey, signingKey);
       
-      // First wait for the account, then deploy it
-      const wallet = await account.waitForDeployment();
+      // First deploy the account, then get the wallet
+      const wallet = await account.deploy().wait().then(() => account.getWallet());
       this.wallet = wallet;
       const address = this.wallet.getAddress();
       
@@ -76,6 +81,10 @@ export class AztecService {
     if (!this.pxe) throw new Error('PXE не инициализирован');
 
     try {
+      // Import necessary classes dynamically
+      const { Fr, GrumpkinScalar } = await import('@aztec/aztec.js');
+      const { getSchnorrAccount } = await import('@aztec/accounts/schnorr');
+      
       const secretKey = Fr.fromString(privateKey);
       // Use GrumpkinScalar for the signing key  
       const signingKey = GrumpkinScalar.random();
@@ -114,6 +123,8 @@ export class AztecService {
     if (!this.wallet) throw new Error('Кошелек не подключен');
 
     try {
+      // Import AztecAddress dynamically to avoid module issues
+      const { AztecAddress } = await import('@aztec/aztec.js');
       this.contractAddress = AztecAddress.fromString(contractAddress);
       // TODO: This will need to be updated once contract is compiled
       throw new Error('Contract connection requires compiled contract - please run "npm run compile" first');
@@ -135,6 +146,9 @@ export class AztecService {
     if (!this.contract) throw new Error('Контракт не подключен');
 
     try {
+      // Import Fr and TxStatus dynamically to avoid module issues
+      const { Fr, TxStatus } = await import('@aztec/aztec.js');
+      
       const tx = await this.contract.methods
         .create_auction(
           Fr.fromString(itemName),
@@ -162,6 +176,9 @@ export class AztecService {
     if (!this.contract) throw new Error('Контракт не подключен');
 
     try {
+      // Import Fr and TxStatus dynamically to avoid module issues
+      const { Fr, TxStatus } = await import('@aztec/aztec.js');
+      
       const tx = await this.contract.methods
         .place_bid(new Fr(auctionId), new Fr(amount))
         .send()
@@ -182,6 +199,9 @@ export class AztecService {
     if (!this.contract) throw new Error('Контракт не подключен');
 
     try {
+      // Import Fr and TxStatus dynamically to avoid module issues
+      const { Fr, TxStatus } = await import('@aztec/aztec.js');
+      
       const tx = await this.contract.methods
         .finalize_auction(new Fr(auctionId))
         .send()
@@ -202,6 +222,9 @@ export class AztecService {
     if (!this.contract) throw new Error('Контракт не подключен');
 
     try {
+      // Import Fr dynamically to avoid module issues
+      const { Fr } = await import('@aztec/aztec.js');
+      
       const result = await this.contract.methods
         .get_auction_info(new Fr(auctionId))
         .simulate();
@@ -225,6 +248,9 @@ export class AztecService {
     if (!this.contract) throw new Error('Контракт не подключен');
 
     try {
+      // Import Fr dynamically to avoid module issues
+      const { Fr } = await import('@aztec/aztec.js');
+      
       const result = await this.contract.methods
         .get_winner(new Fr(auctionId))
         .simulate();
@@ -255,6 +281,9 @@ export class AztecService {
     if (!this.contract) throw new Error('Контракт не подключен');
 
     try {
+      // Import Fr dynamically to avoid module issues
+      const { Fr } = await import('@aztec/aztec.js');
+      
       const result = await this.contract.methods
         .am_i_winner(new Fr(auctionId))
         .simulate();
