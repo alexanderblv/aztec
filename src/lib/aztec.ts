@@ -152,7 +152,7 @@ export class AztecService {
         .send()
         .wait();
 
-      if (tx.status === TxStatus.MINED) {
+      if (tx.status === TxStatus.SUCCESS) {
         const auctionId = tx.returnValues?.[0]?.toBigInt() || 0;
         console.log('Аукцион создан с ID:', auctionId);
         return Number(auctionId);
@@ -177,7 +177,7 @@ export class AztecService {
         .send()
         .wait();
 
-      if (tx.status === TxStatus.MINED) {
+      if (tx.status === TxStatus.SUCCESS) {
         console.log('Ставка размещена успешно');
       } else {
         throw new Error('Транзакция не была подтверждена');
@@ -200,7 +200,7 @@ export class AztecService {
         .send()
         .wait();
 
-      if (tx.status === TxStatus.MINED) {
+      if (tx.status === TxStatus.SUCCESS) {
         console.log('Аукцион завершен успешно');
       } else {
         throw new Error('Транзакция не была подтверждена');
