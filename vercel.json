@@ -6,11 +6,11 @@
   "outputDirectory": ".next",
   "public": false,
   "env": {
-    "NEXT_PUBLIC_AZTEC_PXE_URL": "@aztec_pxe_url"
+    "NEXT_PUBLIC_AZTEC_PXE_URL": "$NEXT_PUBLIC_AZTEC_PXE_URL"
   },
   "build": {
     "env": {
-      "NEXT_PUBLIC_AZTEC_PXE_URL": "@aztec_pxe_url"
+      "NEXT_PUBLIC_AZTEC_PXE_URL": "$NEXT_PUBLIC_AZTEC_PXE_URL"
     }
   },
   "functions": {

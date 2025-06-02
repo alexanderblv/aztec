@@ -14,6 +14,8 @@ vercel login
 
 ### 2. Настройка переменных окружения
 
+#### Способ 1: Через Vercel CLI (Обычные переменные окружения)
+
 ```bash
 # Создание переменных среды
 vercel env add NEXT_PUBLIC_AZTEC_PXE_URL production
@@ -22,6 +24,34 @@ vercel env add NEXT_PUBLIC_AZTEC_PXE_URL production
 vercel env add AZTEC_CONTRACT_ADDRESS production
 # Введите адрес развернутого контракта
 ```
+
+#### Способ 2: Через Web Dashboard Vercel
+
+1. Зайдите в ваш проект на https://vercel.com
+2. Перейдите в Settings → Environment Variables
+3. Добавьте переменные:
+   - `NEXT_PUBLIC_AZTEC_PXE_URL` = `https://your-aztec-node.com:8080`
+   - `AZTEC_CONTRACT_ADDRESS` = адрес вашего контракта
+
+#### Способ 3: Использование Vercel Secrets (Для чувствительных данных)
+
+```bash
+# Создание секретов (для приватных ключей и чувствительных данных)
+vercel secrets add private_key "your-private-key-here"
+vercel secrets add database_url "your-database-connection-string"
+
+# В vercel.json используйте синтаксис @secret_name
+# {
+#   "env": {
+#     "PRIVATE_KEY": "@private_key",
+#     "DATABASE_URL": "@database_url"
+#   }
+# }
+```
+
+**Примечание**: Если вы получаете ошибку "Secret does not exist", убедитесь что:
+1. Секрет создан правильно с помощью `vercel secrets add`
+2. Или используйте обычные переменные окружения вместо секретов
 
 ### 3. Развертывание
 
