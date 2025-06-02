@@ -5,9 +5,9 @@ import {
   PXE,
   TxStatus,
   AccountWallet,
-  Contract,
-  getSchnorrAccount
+  Contract
 } from '@aztec/aztec.js';
+import { getSchnorrAccount } from '@aztec/accounts/schnorr';
 // TODO: Import will be available after contract compilation
 // import { PrivateAuctionContract } from './contracts/PrivateAuction.js';
 
