@@ -55,10 +55,10 @@ export class AztecService {
       const secretKey = Fr.random();
       // Use GrumpkinScalar for the signing key
       const signingKey = GrumpkinScalar.random();
-      const account = getSchnorrAccount(this.pxe, secretKey, signingKey);
+      const accountManager = await getSchnorrAccount(this.pxe, secretKey, signingKey);
       
       // First deploy the account, then get the wallet
-      const wallet = await account.deploy().wait().then(() => account.getWallet());
+      const wallet = await accountManager.deploy().wait().then(() => accountManager.getWallet());
       this.wallet = wallet;
       const address = this.wallet.getAddress();
       
@@ -81,9 +81,9 @@ export class AztecService {
       const secretKey = Fr.fromString(privateKey);
       // Use GrumpkinScalar for the signing key  
       const signingKey = GrumpkinScalar.random();
-      const account = getSchnorrAccount(this.pxe, secretKey, signingKey);
+      const accountManager = await getSchnorrAccount(this.pxe, secretKey, signingKey);
       
-      this.wallet = await account.getWallet();
+      this.wallet = await accountManager.getWallet();
       const address = this.wallet.getAddress();
       
       console.log('Кошелек подключен:', address.toString());
