@@ -5,9 +5,9 @@ import {
   PXE,
   TxStatus,
   AccountWallet,
+  Contract,
+  getSchnorrAccount
 } from '@aztec/aztec.js';
-import { getSchnorrAccount } from '@aztec/accounts/schnorr';
-import { Contract } from '@aztec/aztec.js';
 // TODO: Import will be available after contract compilation
 // import { PrivateAuctionContract } from './contracts/PrivateAuction.js';
 
@@ -59,7 +59,9 @@ export class AztecService {
       const signingKey = GrumpkinScalar.random();
       const account = getSchnorrAccount(this.pxe, secretKey, signingKey);
       
-      this.wallet = await account.waitForDeployment();
+      // First wait for the account, then deploy it
+      const wallet = await account.waitForDeployment();
+      this.wallet = wallet;
       const address = this.wallet.getAddress();
       
       console.log('Новый кошелек создан:', address.toString());
