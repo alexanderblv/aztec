@@ -1,13 +1,16 @@
 'use client'
 
-import { usePrivy, useWallets } from '@privy-io/react-auth'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 interface PrivyWalletConnectFullProps {
   onWalletConnected: (address: string) => void
+  onError?: (error: string) => void
 }
 
-export default function PrivyWalletConnectFull({ onWalletConnected }: PrivyWalletConnectFullProps) {
+// Компонент для непосредственного использования Privy хуков
+function PrivyWalletContent({ onWalletConnected, onError }: PrivyWalletConnectFullProps) {
+  const { usePrivy, useWallets } = require('@privy-io/react-auth')
+  
   const { 
     ready, 
     authenticated, 
@@ -95,4 +98,115 @@ export default function PrivyWalletConnectFull({ onWalletConnected }: PrivyWalle
       </div>
     </div>
   )
+}
+
+export default function PrivyWalletConnectFull({ onWalletConnected, onError }: PrivyWalletConnectFullProps) {
+  const [hasPrivyDeps, setHasPrivyDeps] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Проверяем наличие Privy
+    try {
+      require('@privy-io/react-auth')
+      setHasPrivyDeps(true)
+    } catch (e) {
+      setHasPrivyDeps(false)
+      onError?.('Privy не настроен. Используйте демо режим.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [onError])
+
+  if (isLoading) {
+    return (
+      <div className="card max-w-md mx-auto">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Проверка настроек...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!hasPrivyDeps) {
+    return (
+      <div className="card max-w-md mx-auto">
+        <div className="text-center">
+          <div className="text-yellow-600 text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-yellow-800 mb-4">
+            Privy не настроен
+          </h2>
+          <p className="text-yellow-700 text-sm mb-4">
+            Зависимости не установлены или не настроен App ID
+          </p>
+          <button 
+            onClick={() => onError?.('Переключитесь на демо режим')}
+            className="btn-secondary"
+          >
+            Использовать демо режим
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Создаем провайдер только когда зависимости установлены
+  try {
+    const React = require('react')
+    const { PrivyProvider } = require('@privy-io/react-auth')
+    const { WagmiProvider } = require('@privy-io/wagmi')
+    const { QueryClient, QueryClientProvider } = require('@tanstack/react-query')
+    const { mainnet, polygon, sepolia } = require('viem/chains')
+    const { http, createConfig } = require('wagmi')
+
+    const config = createConfig({
+      chains: [mainnet, polygon, sepolia],
+      transports: {
+        [mainnet.id]: http(),
+        [polygon.id]: http(),
+        [sepolia.id]: http(),
+      },
+    })
+
+    const queryClient = new QueryClient()
+    const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'clz2h1m7w00jmpfof8v6gbyou'
+
+    return React.createElement(PrivyProvider, {
+      appId: appId,
+      config: {
+        loginMethods: ['email', 'wallet', 'sms', 'google'],
+        appearance: {
+          theme: 'light',
+          accentColor: '#3B82F6',
+          landingHeader: 'Добро пожаловать в Private Auction',
+          loginMessage: 'Войдите для участия в приватных аукционах',
+        },
+        supportedChains: [mainnet, polygon, sepolia],
+        embeddedWallets: {
+          createOnLogin: 'users-without-wallets',
+          requireUserPasswordOnCreate: false,
+        },
+      }
+    }, 
+    React.createElement(QueryClientProvider, { client: queryClient },
+      React.createElement(WagmiProvider, { config: config }, 
+        React.createElement(PrivyWalletContent, { onWalletConnected, onError })
+      )
+    ))
+  } catch (e) {
+    onError?.('Ошибка инициализации Privy: ' + e.message)
+    return (
+      <div className="card max-w-md mx-auto">
+        <div className="text-center">
+          <div className="text-red-600 text-4xl mb-4">❌</div>
+          <h2 className="text-xl font-bold text-red-800 mb-4">
+            Ошибка Privy
+          </h2>
+          <p className="text-red-700 text-sm">
+            Проверьте конфигурацию
+          </p>
+        </div>
+      </div>
+    )
+  }
 } 

@@ -6,6 +6,7 @@ import AuctionList from '@/components/AuctionList'
 import CreateAuctionModal from '@/components/CreateAuctionModal'
 import BidModal from '@/components/BidModal'
 import PrivyWalletConnectFull from '@/components/PrivyWalletConnectFull'
+import WalletConnect from '@/components/WalletConnect'
 
 export default function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -13,13 +14,19 @@ export default function Home() {
   const [isBidModalOpen, setIsBidModalOpen] = useState(false)
   const [selectedAuctionId, setSelectedAuctionId] = useState<number | null>(null)
   const [walletAddress, setWalletAddress] = useState<string>('')
+  const [walletMode, setWalletMode] = useState<'privy' | 'demo'>('privy')
+  const [privyError, setPrivyError] = useState<string>('')
 
   useEffect(() => {
     // Проверяем состояние подключения кошелька при загрузке
     const savedAddress = localStorage.getItem('walletAddress')
+    const savedMode = localStorage.getItem('walletMode') as 'privy' | 'demo'
     if (savedAddress) {
       setWalletAddress(savedAddress)
       setIsWalletConnected(true)
+      if (savedMode) {
+        setWalletMode(savedMode)
+      }
     }
   }, [])
 
@@ -27,12 +34,15 @@ export default function Home() {
     setWalletAddress(address)
     setIsWalletConnected(true)
     localStorage.setItem('walletAddress', address)
+    localStorage.setItem('walletMode', walletMode)
   }
 
   const handleDisconnectWallet = () => {
     setIsWalletConnected(false)
     setWalletAddress('')
+    setPrivyError('')
     localStorage.removeItem('walletAddress')
+    localStorage.removeItem('walletMode')
   }
 
   const handleBidClick = (auctionId: number) => {
@@ -51,7 +61,61 @@ export default function Home() {
             Добро пожаловать на платформу приватных аукционов, работающую на технологии Aztec Network. 
             Здесь ваши ставки остаются полностью конфиденциальными до завершения торгов.
           </p>
-          <PrivyWalletConnectFull onWalletConnected={handleWalletConnected} />
+
+          {/* Выбор типа подключения */}
+          <div className="mb-8 max-w-md mx-auto">
+            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+              <button
+                onClick={() => {
+                  setWalletMode('privy')
+                  setPrivyError('')
+                }}
+                className={`flex-1 py-2 px-4 text-sm font-medium ${
+                  walletMode === 'privy'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Privy (Реальные кошельки)
+              </button>
+              <button
+                onClick={() => {
+                  setWalletMode('demo')
+                  setPrivyError('')
+                }}
+                className={`flex-1 py-2 px-4 text-sm font-medium ${
+                  walletMode === 'demo'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Демо режим
+              </button>
+            </div>
+          </div>
+
+          {/* Компонент подключения */}
+          {walletMode === 'privy' ? (
+            <div>
+              <PrivyWalletConnectFull 
+                onWalletConnected={handleWalletConnected}
+                onError={setPrivyError}
+              />
+              {privyError && (
+                <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded max-w-md mx-auto">
+                  <p className="text-sm">{privyError}</p>
+                  <button 
+                    onClick={() => setWalletMode('demo')}
+                    className="mt-2 text-xs underline"
+                  >
+                    Переключиться на демо режим
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <WalletConnect onWalletConnected={handleWalletConnected} />
+          )}
           
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="card text-center">

@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_PRIVY_APP_ID: 'clz2h1m7w00jmpfof8v6gbyou'
+  },
   webpack: (config) => {
+    config.experiments = {
+      asyncWebAssembly: true,
+      layers: true,
+      topLevelAwait: true,
+    }
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -10,6 +18,9 @@ const nextConfig = {
     };
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     return config;
+  },
+  experimental: {
+    esmExternals: true,
   },
 }
 
