@@ -5,10 +5,11 @@ import React, { useEffect, useState } from 'react'
 interface PrivyWalletConnectFullProps {
   onWalletConnected: (address: string) => void
   onError?: (error: string) => void
+  onLogoutComplete?: () => void
 }
 
 // Компонент для непосредственного использования Privy хуков
-function PrivyWalletContent({ onWalletConnected, onError }: PrivyWalletConnectFullProps) {
+function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: PrivyWalletConnectFullProps) {
   const { usePrivy, useWallets } = require('@privy-io/react-auth')
   
   const { 
@@ -27,6 +28,24 @@ function PrivyWalletContent({ onWalletConnected, onError }: PrivyWalletConnectFu
       onWalletConnected(wallet.address)
     }
   }, [authenticated, user, wallets, onWalletConnected])
+
+  // Отслеживаем изменение статуса аутентификации
+  useEffect(() => {
+    if (ready && !authenticated) {
+      // Если пользователь больше не аутентифицирован, вызываем колбэк
+      onLogoutComplete?.()
+    }
+  }, [ready, authenticated, onLogoutComplete])
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('Ошибка при отключении:', error)
+      // В случае ошибки все равно очищаем состояние
+      onLogoutComplete?.()
+    }
+  }
 
   if (!ready) {
     return (
@@ -54,7 +73,7 @@ function PrivyWalletContent({ onWalletConnected, onError }: PrivyWalletConnectFu
             </p>
           )}
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="btn-secondary"
           >
             Отключить
@@ -100,7 +119,7 @@ function PrivyWalletContent({ onWalletConnected, onError }: PrivyWalletConnectFu
   )
 }
 
-export default function PrivyWalletConnectFull({ onWalletConnected, onError }: PrivyWalletConnectFullProps) {
+export default function PrivyWalletConnectFull({ onWalletConnected, onError, onLogoutComplete }: PrivyWalletConnectFullProps) {
   const [hasPrivyDeps, setHasPrivyDeps] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -192,7 +211,11 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError }: P
     }, 
     React.createElement(QueryClientProvider, { client: queryClient },
       React.createElement(WagmiProvider, { config: config }, 
-        React.createElement(PrivyWalletContent, { onWalletConnected, onError })
+        React.createElement(PrivyWalletContent, { 
+          onWalletConnected, 
+          onError,
+          onLogoutComplete 
+        })
       )
     ))
   } catch (e) {
