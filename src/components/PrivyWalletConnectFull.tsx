@@ -46,7 +46,7 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
 
   const handleLogout = async () => {
     try {
-      // Устанавливаем флаг logout
+      // Устанавливаем флаг logout сразу в начале для быстрого скрытия UI
       setHasLoggedOut(true)
       localStorage.setItem('privyLoggedOut', 'true')
       
@@ -87,7 +87,7 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
     )
   }
 
-  if (authenticated) {
+  if (authenticated && !hasLoggedOut) {
     return (
       <div className="card max-w-md mx-auto">
         <div className="text-center">
