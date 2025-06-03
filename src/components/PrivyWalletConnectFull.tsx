@@ -22,20 +22,33 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
   
   const { wallets } = useWallets()
   
-  // Упрощенное состояние - только отслеживаем, был ли инициирован logout
-  const [userInitiatedLogout, setUserInitiatedLogout] = useState(false)
+  // Отслеживаем состояние logout
+  const [hasLoggedOut, setHasLoggedOut] = useState(false)
+
+  // Проверяем флаг logout при инициализации
+  useEffect(() => {
+    const privyLoggedOut = localStorage.getItem('privyLoggedOut')
+    if (privyLoggedOut === 'true') {
+      setHasLoggedOut(true)
+    }
+  }, [])
 
   useEffect(() => {
-    if (authenticated && user && wallets.length > 0 && !userInitiatedLogout) {
+    // Подключаем только если пользователь не выходил явно
+    if (authenticated && user && wallets.length > 0 && !hasLoggedOut) {
       const wallet = wallets[0]
       onWalletConnected(wallet.address)
+    } else if (authenticated && hasLoggedOut) {
+      // Если пользователь выходил, но Privy снова авторизовал (из-за расширения) - принудительно выходим
+      logout().catch(console.error)
     }
-  }, [authenticated, user, wallets, onWalletConnected, userInitiatedLogout])
+  }, [authenticated, user, wallets, onWalletConnected, hasLoggedOut, logout])
 
   const handleLogout = async () => {
     try {
-      // Устанавливаем флаг перед logout
-      setUserInitiatedLogout(true)
+      // Устанавливаем флаг logout
+      setHasLoggedOut(true)
+      localStorage.setItem('privyLoggedOut', 'true')
       
       // Сразу вызываем callback отключения
       onLogoutComplete?.()
@@ -47,6 +60,19 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
       console.error('Ошибка при отключении:', error)
       // В случае ошибки все равно считаем что отключились
       onLogoutComplete?.()
+    }
+  }
+
+  const handleLogin = async () => {
+    try {
+      // Очищаем флаг logout перед входом
+      setHasLoggedOut(false)
+      localStorage.removeItem('privyLoggedOut')
+      
+      // Выполняем вход
+      await login()
+    } catch (error) {
+      console.error('Ошибка при входе:', error)
     }
   }
 
@@ -95,7 +121,7 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
       </p>
 
       <button
-        onClick={login}
+        onClick={handleLogin}
         className="w-full btn-primary flex items-center justify-center space-x-2"
       >
         <span>🔐</span>
