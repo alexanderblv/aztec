@@ -30,17 +30,35 @@ export class AztecService {
   private wallet: any = null;
   private contract: any = null;
   private contractAddress: any = null;
+  private isTestnet: boolean = false;
 
-  async initialize(pxeUrl: string = 'http://localhost:8080'): Promise<void> {
+  async initialize(pxeUrl?: string): Promise<void> {
     try {
+      // Определяем URL для подключения
+      const defaultUrl = typeof window !== 'undefined' 
+        ? process.env.NEXT_PUBLIC_AZTEC_PXE_URL || 'http://localhost:8080'
+        : 'http://localhost:8080';
+      
+      const finalUrl = pxeUrl || defaultUrl;
+      this.isTestnet = finalUrl.includes('testnet');
+      
       // Import createPXEClient dynamically to avoid module issues
       const { createPXEClient } = await import('@aztec/aztec.js');
-      this.pxe = createPXEClient(pxeUrl);
-      console.log('Подключение к Aztec PXE успешно');
+      this.pxe = createPXEClient(finalUrl);
+      
+      console.log(`Подключение к Aztec ${this.isTestnet ? 'Testnet' : 'Sandbox'} успешно`);
+      console.log(`PXE URL: ${finalUrl}`);
     } catch (error) {
       console.error('Ошибка подключения к Aztec PXE:', error);
       throw error;
     }
+  }
+
+  getNetworkInfo(): { isTestnet: boolean; network: string } {
+    return {
+      isTestnet: this.isTestnet,
+      network: this.isTestnet ? 'Alpha Testnet' : 'Local Sandbox'
+    };
   }
 
   async createWallet(): Promise<string> {

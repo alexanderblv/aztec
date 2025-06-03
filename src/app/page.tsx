@@ -7,6 +7,7 @@ import CreateAuctionModal from '@/components/CreateAuctionModal'
 import BidModal from '@/components/BidModal'
 import PrivyWalletConnectFull from '@/components/PrivyWalletConnectFull'
 import WalletConnect from '@/components/WalletConnect'
+import NetworkSelector from '@/components/NetworkSelector'
 
 export default function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -15,6 +16,7 @@ export default function Home() {
   const [selectedAuctionId, setSelectedAuctionId] = useState<number | null>(null)
   const [walletAddress, setWalletAddress] = useState<string>('')
   const [walletMode, setWalletMode] = useState<'privy' | 'demo'>('privy')
+  const [aztecNetwork, setAztecNetwork] = useState<'sandbox' | 'testnet'>('sandbox')
   const [privyError, setPrivyError] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
 
@@ -22,12 +24,18 @@ export default function Home() {
     // Проверяем состояние подключения кошелька при загрузке
     const savedAddress = localStorage.getItem('walletAddress')
     const savedMode = localStorage.getItem('walletMode') as 'privy' | 'demo'
+    const savedNetwork = localStorage.getItem('aztecNetwork') as 'sandbox' | 'testnet'
+    
     if (savedAddress) {
       setWalletAddress(savedAddress)
       setIsWalletConnected(true)
       if (savedMode) {
         setWalletMode(savedMode)
       }
+    }
+    
+    if (savedNetwork) {
+      setAztecNetwork(savedNetwork)
     }
   }, [])
 
@@ -36,6 +44,7 @@ export default function Home() {
     setIsWalletConnected(true)
     localStorage.setItem('walletAddress', address)
     localStorage.setItem('walletMode', walletMode)
+    localStorage.setItem('aztecNetwork', aztecNetwork)
   }
 
   const handleDisconnectWallet = () => {
@@ -44,6 +53,18 @@ export default function Home() {
     setPrivyError('')
     localStorage.removeItem('walletAddress')
     localStorage.removeItem('walletMode')
+    localStorage.removeItem('aztecNetwork')
+  }
+
+  const handleNetworkChange = (network: 'sandbox' | 'testnet') => {
+    setAztecNetwork(network)
+    localStorage.setItem('aztecNetwork', network)
+    
+    // Если кошелек уже подключен, переподключаемся к новой сети
+    if (isWalletConnected) {
+      // Здесь можно добавить логику переподключения к новой сети
+      console.log(`Переключение на ${network}`)
+    }
   }
 
   const handleBidClick = (auctionId: number) => {
@@ -54,7 +75,7 @@ export default function Home() {
   if (!isWalletConnected) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-4xl mx-auto px-4">
           <h1 className="text-4xl font-bold text-gray-900 mb-8">
             Приватные Аукционы
           </h1>
@@ -62,6 +83,13 @@ export default function Home() {
             Добро пожаловать на платформу приватных аукционов, работающую на технологии Aztec Network. 
             Здесь ваши ставки остаются полностью конфиденциальными до завершения торгов.
           </p>
+
+          {/* Выбор сети Aztec */}
+          <NetworkSelector 
+            currentNetwork={aztecNetwork}
+            onNetworkChange={handleNetworkChange}
+            disabled={false}
+          />
 
           {/* Выбор типа подключения */}
           <div className="mb-8 max-w-md mx-auto">

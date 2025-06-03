@@ -4,12 +4,15 @@
   "description": "Веб-платформа приватных аукционов на основе Aztec",
   "scripts": {
     "dev": "next dev",
+    "dev:testnet": "cp env.testnet .env.local && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "compile": "aztec-nargo compile",
+    "compile:testnet": "aztec-nargo compile --network testnet",
     "test": "aztec-nargo test",
-    "sandbox": "aztec-sandbox"
+    "sandbox": "aztec-sandbox",
+    "deploy:testnet": "aztec-wallet deploy --node-url https://aztec-alpha-testnet-fullnode.zkv.xyz"
   },
   "dependencies": {
     "next": "^14.0.0",
