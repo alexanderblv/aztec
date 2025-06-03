@@ -19,6 +19,7 @@ export default function Home() {
   const [aztecNetwork, setAztecNetwork] = useState<'sandbox' | 'testnet'>('sandbox')
   const [privyError, setPrivyError] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     // Проверяем состояние подключения кошелька при загрузке
@@ -83,16 +84,33 @@ export default function Home() {
     setAztecNetwork(network)
     localStorage.setItem('aztecNetwork', network)
     
-    // Если кошелек уже подключен, переподключаемся к новой сети
-    if (isWalletConnected) {
-      // Здесь можно добавить логику переподключения к новой сети
-      console.log(`Переключение на ${network}`)
+    console.log(`Переключение на ${network}`)
+    
+    // Если кошелек уже подключен в демо режиме, переподключаемся к новой сети
+    if (isWalletConnected && walletMode === 'demo') {
+      console.log('Отключение кошелька для переключения сети')
+      setIsWalletConnected(false)
+      setWalletAddress('')
+      localStorage.removeItem('walletAddress')
+      localStorage.removeItem('walletMode')
     }
   }
 
   const handleBidClick = (auctionId: number) => {
     setSelectedAuctionId(auctionId)
     setIsBidModalOpen(true)
+  }
+
+  const handleAuctionCreated = () => {
+    // Принудительно обновляем список аукционов
+    setRefreshKey(prev => prev + 1)
+    console.log('Аукцион создан, обновляем список')
+  }
+
+  const handleBidPlaced = () => {
+    // Принудительно обновляем список аукционов после размещения ставки
+    setRefreshKey(prev => prev + 1)
+    console.log('Ставка размещена, обновляем список')
   }
 
   if (!isWalletConnected) {
@@ -198,20 +216,37 @@ export default function Home() {
         walletAddress={walletAddress}
         onDisconnect={handleDisconnectWallet}
         onCreateAuction={() => setIsCreateModalOpen(true)}
+        walletMode={walletMode}
+        network={aztecNetwork}
       />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Аукционы
-          </h1>
-          <p className="text-gray-600">
-            Участвуйте в приватных аукционах. Ваши ставки останутся конфиденциальными до завершения торгов.
-          </p>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Информация о текущей сети */}
+        <div className="mb-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-blue-900">
+                  {aztecNetwork === 'testnet' ? '🌐 Aztec Alpha Testnet' : '🔧 Aztec Sandbox (демо)'}
+                </h3>
+                <p className="text-sm text-blue-700">
+                  {aztecNetwork === 'testnet' 
+                    ? 'Подключен к реальной тестовой сети Aztec. Все операции происходят на блокчейне.'
+                    : 'Демо режим для тестирования. Данные сохраняются локально в браузере.'
+                  }
+                </p>
+              </div>
+              <NetworkSelector 
+                currentNetwork={aztecNetwork}
+                onNetworkChange={handleNetworkChange}
+                disabled={false}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Вкладки */}
-        <div className="mb-6">
+        {/* Табы для фильтрации аукционов */}
+        <div className="mb-8">
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
               <button
@@ -238,12 +273,19 @@ export default function Home() {
           </div>
         </div>
 
-        <AuctionList onBidClick={handleBidClick} filterType={activeTab} />
+        {/* Список аукционов */}
+        <AuctionList 
+          key={refreshKey}
+          onBidClick={handleBidClick} 
+          filterType={activeTab}
+        />
       </main>
 
-      <CreateAuctionModal 
+      {/* Модальные окна */}
+      <CreateAuctionModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+        onAuctionCreated={handleAuctionCreated}
       />
 
       <BidModal 

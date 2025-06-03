@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+// import { useAztec } from '@/lib/aztec-context'
+import { aztecDemoService } from '@/lib/aztec-demo'
+import { AztecService } from '@/lib/aztec'
 
 interface BidModalProps {
   isOpen: boolean
@@ -21,19 +24,56 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [auctionInfo, setAuctionInfo] = useState<AuctionInfo | null>(null)
+  
+  // Определяем сервис на основе сохраненной сети
+  const getAztecService = () => {
+    if (typeof window === 'undefined') return aztecDemoService
+    
+    const network = localStorage.getItem('aztecNetwork') || 'sandbox'
+    return network === 'testnet' ? new AztecService() : aztecDemoService
+  }
 
   useEffect(() => {
     if (isOpen && auctionId) {
-      // Загружаем информацию об аукционе
+      // Загружаем информацию об аукционе из реального сервиса
       const loadAuctionInfo = async () => {
-        // Имитация загрузки данных
-        const mockAuctions = [
-          { id: 1, itemName: 'Редкая винтажная картина', minBid: 1000, endTime: Date.now() + 3600000 },
-          { id: 2, itemName: 'Коллекционные часы Rolex', minBid: 5000, endTime: Date.now() + 1800000 },
-        ]
-        
-        const auction = mockAuctions.find(a => a.id === auctionId)
-        setAuctionInfo(auction || null)
+        try {
+          const service = getAztecService()
+          
+          // Для демо-режима используем существующую логику
+          if (service === aztecDemoService) {
+            const mockAuctions = [
+              { id: 1, itemName: 'Редкая винтажная картина', minBid: 1000, endTime: Date.now() + 3600000 },
+              { id: 2, itemName: 'Коллекционные часы Rolex', minBid: 5000, endTime: Date.now() + 1800000 },
+            ]
+            
+            const auction = mockAuctions.find(a => a.id === auctionId)
+            setAuctionInfo(auction || null)
+          } else {
+            // Для testnet пытаемся загрузить реальные данные
+            try {
+              const realAuctionInfo = await service.getAuctionInfo(auctionId)
+              if (realAuctionInfo) {
+                setAuctionInfo({
+                  id: auctionId,
+                  itemName: realAuctionInfo.itemName,
+                  minBid: realAuctionInfo.minBid,
+                  endTime: realAuctionInfo.endTime
+                })
+              }
+            } catch (error) {
+              console.warn('Не удалось загрузить информацию об аукционе, используем демо данные')
+              const mockAuctions = [
+                { id: 1, itemName: 'Тестовый аукцион 1', minBid: 100, endTime: Date.now() + 3600000 },
+                { id: 2, itemName: 'Тестовый аукцион 2', minBid: 500, endTime: Date.now() + 1800000 },
+              ]
+              const auction = mockAuctions.find(a => a.id === auctionId)
+              setAuctionInfo(auction || null)
+            }
+          }
+        } catch (error) {
+          console.error('Ошибка загрузки информации об аукционе:', error)
+        }
       }
       
       loadAuctionInfo()
@@ -56,18 +96,25 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
         throw new Error(`Ставка должна быть не меньше ${auctionInfo.minBid} ETH`)
       }
 
-      // Имитация отправки приватной ставки
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      // Используем реальный сервис для отправки ставки
+      const service = getAztecService()
       
-      setSuccess(true)
-      setTimeout(() => {
-        setSuccess(false)
-        onClose()
-        setBidAmount('')
-      }, 2500)
+      if (auctionId) {
+        await service.placeBid(auctionId, amount)
+        
+        setSuccess(true)
+        console.log(`Приватная ставка ${amount} ETH отправлена для аукциона ${auctionId}`)
+        
+        setTimeout(() => {
+          setSuccess(false)
+          onClose()
+          setBidAmount('')
+        }, 2500)
+      }
       
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message || 'Ошибка отправки ставки')
+      console.error('Ошибка отправки ставки:', err)
     } finally {
       setIsLoading(false)
     }
@@ -191,7 +238,7 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
                     className="flex-1 btn-primary disabled:opacity-50"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Шифруется и отправляется...' : 'Отправить Ставку'}
+                    {isLoading ? 'Отправляется через Aztec...' : 'Отправить Ставку'}
                   </button>
                 </div>
               </form>
