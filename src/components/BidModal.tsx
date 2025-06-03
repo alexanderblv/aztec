@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-// import { useAztec } from '@/lib/aztec-context'
-import { aztecDemoService } from '@/lib/aztec-demo'
-import { AztecService } from '@/lib/aztec'
+import { useAztec } from '@/lib/aztec-context'
+// import { aztecDemoService } from '@/lib/aztec-demo'
+// import { AztecService } from '@/lib/aztec'
 
 interface BidModalProps {
   isOpen: boolean
@@ -25,23 +25,16 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
   const [success, setSuccess] = useState(false)
   const [auctionInfo, setAuctionInfo] = useState<AuctionInfo | null>(null)
   
-  // Определяем сервис на основе сохраненной сети
-  const getAztecService = () => {
-    if (typeof window === 'undefined') return aztecDemoService
-    
-    const network = localStorage.getItem('aztecNetwork') || 'sandbox'
-    return network === 'testnet' ? new AztecService() : aztecDemoService
-  }
+  // Используем единый контекст Aztec
+  const { service, isTestnet } = useAztec()
 
   useEffect(() => {
-    if (isOpen && auctionId) {
+    if (isOpen && auctionId && service) {
       // Загружаем информацию об аукционе из реального сервиса
       const loadAuctionInfo = async () => {
         try {
-          const service = getAztecService()
-          
           // Для демо-режима используем существующую логику
-          if (service === aztecDemoService) {
+          if (!isTestnet) {
             const mockAuctions = [
               { id: 1, itemName: 'Редкая винтажная картина', minBid: 1000, endTime: Date.now() + 3600000 },
               { id: 2, itemName: 'Коллекционные часы Rolex', minBid: 5000, endTime: Date.now() + 1800000 },
@@ -78,7 +71,7 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
       
       loadAuctionInfo()
     }
-  }, [isOpen, auctionId])
+  }, [isOpen, auctionId, service, isTestnet])
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
@@ -96,9 +89,11 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
         throw new Error(`Ставка должна быть не меньше ${auctionInfo.minBid} ETH`)
       }
 
-      // Используем реальный сервис для отправки ставки
-      const service = getAztecService()
-      
+      if (!service) {
+        throw new Error('Сервис не инициализирован')
+      }
+
+      // Используем сервис из контекста
       if (auctionId) {
         await service.placeBid(auctionId, amount)
         

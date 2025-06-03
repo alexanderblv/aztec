@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { aztecDemoService } from '@/lib/aztec-demo'
-import { AztecService } from '@/lib/aztec'
+import { useAztec } from '@/lib/aztec-context'
+// import { aztecDemoService } from '@/lib/aztec-demo'
+// import { AztecService } from '@/lib/aztec'
 
 interface Auction {
   id: number
@@ -26,13 +27,8 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Определяем сервис на основе сохраненной сети
-  const getAztecService = () => {
-    if (typeof window === 'undefined') return aztecDemoService
-    
-    const network = localStorage.getItem('aztecNetwork') || 'sandbox'
-    return network === 'testnet' ? new AztecService() : aztecDemoService
-  }
+  // Используем единый контекст Aztec
+  const { service, isTestnet } = useAztec()
 
   useEffect(() => {
     // Загружаем реальные аукционы из сервиса
@@ -40,13 +36,17 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
       setLoading(true)
       
       try {
-        const service = getAztecService()
+        if (!service) {
+          setLoading(false)
+          return
+        }
+
         let auctionsList: Auction[] = []
         
-        if (service === aztecDemoService) {
+        if (!isTestnet) {
           // Для демо-режима используем демо данные
           const demoAuctions = await service.getAllAuctions()
-          auctionsList = demoAuctions.map(auction => ({
+          auctionsList = demoAuctions.map((auction: any) => ({
             id: auction.id,
             itemName: auction.itemName,
             description: auction.description,
@@ -210,7 +210,7 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
     }
 
     loadAuctions()
-  }, [])
+  }, [service, isTestnet])
 
   const formatTimeRemaining = (endTime: number) => {
     const now = Date.now()

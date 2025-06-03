@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useAztec } from '@/lib/aztec-context'
 import Header from '@/components/Header'
 import AuctionList from '@/components/AuctionList'
 import CreateAuctionModal from '@/components/CreateAuctionModal'
@@ -10,52 +11,50 @@ import WalletConnect from '@/components/WalletConnect'
 import NetworkSelector from '@/components/NetworkSelector'
 
 export default function Home() {
-  const [isWalletConnected, setIsWalletConnected] = useState(false)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isBidModalOpen, setIsBidModalOpen] = useState(false)
   const [selectedAuctionId, setSelectedAuctionId] = useState<number | null>(null)
-  const [walletAddress, setWalletAddress] = useState<string>('')
   const [walletMode, setWalletMode] = useState<'privy' | 'demo'>('privy')
-  const [aztecNetwork, setAztecNetwork] = useState<'sandbox' | 'testnet'>('sandbox')
   const [privyError, setPrivyError] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   const [refreshKey, setRefreshKey] = useState(0)
 
+  // Используем контекст Aztec
+  const { 
+    network, 
+    isConnected, 
+    walletAddress, 
+    switchNetwork, 
+    connectWallet, 
+    disconnect 
+  } = useAztec()
+
   useEffect(() => {
     // Проверяем состояние подключения кошелька при загрузке
-    const savedAddress = localStorage.getItem('walletAddress')
     const savedMode = localStorage.getItem('walletMode') as 'privy' | 'demo'
-    const savedNetwork = localStorage.getItem('aztecNetwork') as 'sandbox' | 'testnet'
     const privyLoggedOut = localStorage.getItem('privyLoggedOut')
     
-    if (savedAddress && savedMode === 'demo') {
+    if (savedMode === 'demo') {
       // Для демо режима всегда восстанавливаем состояние
-      setWalletAddress(savedAddress)
-      setIsWalletConnected(true)
       setWalletMode(savedMode)
-    } else if (savedAddress && savedMode === 'privy' && privyLoggedOut !== 'true') {
+    } else if (savedMode === 'privy' && privyLoggedOut !== 'true') {
       // Для Privy восстанавливаем только если пользователь НЕ был явно отключен
-      setWalletAddress(savedAddress)
-      setIsWalletConnected(true)
-      setWalletMode(savedMode)
+      setWalletMode(savedMode || 'privy')
     }
-    
-    if (savedNetwork) {
-      setAztecNetwork(savedNetwork)
-    }
-    
-    // НЕ очищаем флаг отключения при загрузке - это важно!
-    // localStorage.removeItem('privyLoggedOut') - убираем эту строку
   }, [])
 
-  const handleWalletConnected = (address: string) => {
-    setWalletAddress(address)
-    setIsWalletConnected(true)
-    localStorage.setItem('walletAddress', address)
-    localStorage.setItem('walletMode', walletMode)
-    localStorage.setItem('aztecNetwork', aztecNetwork)
-    // Очищаем флаг logout только при новом подключении
-    localStorage.removeItem('privyLoggedOut')
+  const handleWalletConnected = async (address: string) => {
+    try {
+      // Подключаем кошелек через контекст Aztec
+      const aztecAddress = await connectWallet()
+      localStorage.setItem('walletAddress', aztecAddress)
+      localStorage.setItem('walletMode', walletMode)
+      localStorage.setItem('aztecNetwork', network)
+      // Очищаем флаг logout только при новом подключении
+      localStorage.removeItem('privyLoggedOut')
+    } catch (error) {
+      console.error('Ошибка подключения Aztec кошелька:', error)
+    }
   }
 
   const handleDisconnectWallet = () => {
@@ -64,9 +63,9 @@ export default function Home() {
       localStorage.setItem('privyLoggedOut', 'true')
     }
     
-    // Сразу очищаем состояние для всех типов кошельков
-    setIsWalletConnected(false)
-    setWalletAddress('')
+    // Отключаем через контекст Aztec
+    disconnect()
+    
     setPrivyError('')
     localStorage.removeItem('walletAddress')
     localStorage.removeItem('walletMode')
@@ -80,19 +79,13 @@ export default function Home() {
     }
   }
 
-  const handleNetworkChange = (network: 'sandbox' | 'testnet') => {
-    setAztecNetwork(network)
-    localStorage.setItem('aztecNetwork', network)
-    
-    console.log(`Переключение на ${network}`)
-    
-    // Если кошелек уже подключен в демо режиме, переподключаемся к новой сети
-    if (isWalletConnected && walletMode === 'demo') {
-      console.log('Отключение кошелька для переключения сети')
-      setIsWalletConnected(false)
-      setWalletAddress('')
-      localStorage.removeItem('walletAddress')
-      localStorage.removeItem('walletMode')
+  const handleNetworkChange = async (newNetwork: 'sandbox' | 'testnet') => {
+    try {
+      await switchNetwork(newNetwork)
+      localStorage.setItem('aztecNetwork', newNetwork)
+      console.log(`Переключение на ${newNetwork}`)
+    } catch (error) {
+      console.error('Ошибка переключения сети:', error)
     }
   }
 
@@ -113,7 +106,7 @@ export default function Home() {
     console.log('Ставка размещена, обновляем список')
   }
 
-  if (!isWalletConnected) {
+  if (!isConnected) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-4xl mx-auto px-4">
@@ -127,7 +120,7 @@ export default function Home() {
 
           {/* Выбор сети Aztec */}
           <NetworkSelector 
-            currentNetwork={aztecNetwork}
+            currentNetwork={network}
             onNetworkChange={handleNetworkChange}
             disabled={false}
           />
@@ -185,7 +178,7 @@ export default function Home() {
               )}
             </div>
           ) : (
-            <WalletConnect onWalletConnected={handleWalletConnected} network={aztecNetwork} />
+            <WalletConnect onWalletConnected={handleWalletConnected} network={network} />
           )}
           
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -217,7 +210,7 @@ export default function Home() {
         onDisconnect={handleDisconnectWallet}
         onCreateAuction={() => setIsCreateModalOpen(true)}
         walletMode={walletMode}
-        network={aztecNetwork}
+        network={network}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -227,17 +220,17 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-blue-900">
-                  {aztecNetwork === 'testnet' ? '🌐 Aztec Alpha Testnet' : '🔧 Aztec Sandbox (демо)'}
+                  {network === 'testnet' ? '🌐 Aztec Alpha Testnet' : '🔧 Aztec Sandbox (демо)'}
                 </h3>
                 <p className="text-sm text-blue-700">
-                  {aztecNetwork === 'testnet' 
+                  {network === 'testnet' 
                     ? 'Подключен к реальной тестовой сети Aztec. Все операции происходят на блокчейне.'
                     : 'Демо режим для тестирования. Данные сохраняются локально в браузере.'
                   }
                 </p>
               </div>
               <NetworkSelector 
-                currentNetwork={aztecNetwork}
+                currentNetwork={network}
                 onNetworkChange={handleNetworkChange}
                 disabled={false}
               />

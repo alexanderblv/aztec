@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { aztecDemoService } from '@/lib/aztec-demo'
-import { AztecService } from '@/lib/aztec'
+import { useAztec } from '@/lib/aztec-context'
+// import { aztecDemoService } from '@/lib/aztec-demo'
+// import { AztecService } from '@/lib/aztec'
 
 interface CreateAuctionModalProps {
   isOpen: boolean
@@ -21,13 +22,8 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  // Определяем сервис на основе сохраненной сети
-  const getAztecService = () => {
-    if (typeof window === 'undefined') return aztecDemoService
-    
-    const network = localStorage.getItem('aztecNetwork') || 'sandbox'
-    return network === 'testnet' ? new AztecService() : aztecDemoService
-  }
+  // Используем единый контекст Aztec
+  const { service, isTestnet } = useAztec()
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
@@ -49,9 +45,11 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
         throw new Error('Продолжительность должна быть больше 0')
       }
 
-      // Используем реальный сервис для создания аукциона
-      const service = getAztecService()
-      
+      if (!service) {
+        throw new Error('Сервис не инициализирован')
+      }
+
+      // Используем сервис из контекста
       const auctionId = await service.createAuction(
         formData.itemName,
         formData.description,
@@ -119,7 +117,7 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
                 Аукцион успешно создан!
               </h3>
               <p className="text-gray-600">
-                Ваш приватный аукцион развернут в сети {typeof window !== 'undefined' && localStorage.getItem('aztecNetwork') === 'testnet' ? 'Aztec Testnet' : 'Aztec Sandbox'}.
+                Ваш приватный аукцион развернут в сети {isTestnet ? 'Aztec Testnet' : 'Aztec Sandbox'}.
               </p>
             </div>
           ) : (
@@ -216,7 +214,7 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
                         Текущая сеть
                       </h4>
                       <p className="text-sm text-yellow-800">
-                        Аукцион будет создан в сети: {typeof window !== 'undefined' && localStorage.getItem('aztecNetwork') === 'testnet' ? 'Aztec Alpha Testnet (реальная сеть)' : 'Aztec Sandbox (демо режим)'}
+                        Аукцион будет создан в сети: {isTestnet ? 'Aztec Alpha Testnet (реальная сеть)' : 'Aztec Sandbox (демо режим)'}
                       </p>
                     </div>
                   </div>

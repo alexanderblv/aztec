@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { aztecDemoService } from '@/lib/aztec-demo'
-import { AztecService } from '@/lib/aztec'
+import { useAztec } from '@/lib/aztec-context'
+// import { aztecDemoService } from '@/lib/aztec-demo'
+// import { AztecService } from '@/lib/aztec'
 
 interface WalletConnectProps {
   onWalletConnected: (address: string) => void
@@ -15,31 +16,15 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
   const [showPrivateKeyInput, setShowPrivateKeyInput] = useState(false)
   const [privateKey, setPrivateKey] = useState('')
 
-  // Создаем экземпляр сервиса в зависимости от выбранной сети
-  const getAztecService = () => {
-    if (network === 'testnet') {
-      return new AztecService()
-    } else {
-      return aztecDemoService
-    }
-  }
+  // Используем единый контекст Aztec
+  const { service, connectWallet } = useAztec()
 
   const handleCreateWallet = async () => {
     setIsLoading(true)
     setError('')
     
     try {
-      const service = getAztecService()
-      
-      if (network === 'testnet') {
-        // Для testnet используем специальный URL
-        const testnetUrl = process.env.NEXT_PUBLIC_AZTEC_PXE_URL || 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
-        await (service as AztecService).initialize(testnetUrl)
-      } else {
-        await service.initialize()
-      }
-      
-      const address = await service.createWallet()
+      const address = await connectWallet()
       onWalletConnected(address)
     } catch (err: any) {
       console.error('Ошибка создания кошелька:', err)
@@ -59,17 +44,7 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
     setError('')
     
     try {
-      const service = getAztecService()
-      
-      if (network === 'testnet') {
-        // Для testnet используем специальный URL
-        const testnetUrl = process.env.NEXT_PUBLIC_AZTEC_PXE_URL || 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
-        await (service as AztecService).initialize(testnetUrl)
-      } else {
-        await service.initialize()
-      }
-      
-      const address = await service.connectWallet(privateKey)
+      const address = await connectWallet(privateKey)
       onWalletConnected(address)
     } catch (err: any) {
       console.error('Ошибка подключения кошелька:', err)
