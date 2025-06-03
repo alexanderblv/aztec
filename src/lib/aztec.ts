@@ -184,7 +184,14 @@ export class AztecService {
   }
 
   async placeBid(auctionId: number, amount: number): Promise<void> {
-    if (!this.contract) throw new Error('Контракт не подключен');
+    // Проверяем состояние компонентов по порядку
+    if (!this.wallet) {
+      throw new Error('Кошелек не подключен к Aztec сети')
+    }
+    
+    if (!this.contract) {
+      throw new Error('Контракт не подключен. Необходимо скомпилировать и развернуть контракт Aztec или переключиться в демо режим.')
+    }
 
     try {
       // Import Fr and TxStatus dynamically to avoid module issues

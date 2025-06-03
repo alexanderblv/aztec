@@ -24,6 +24,7 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [auctionInfo, setAuctionInfo] = useState<AuctionInfo | null>(null)
+  const [contractWarning, setContractWarning] = useState('')
   
   // Используем единый контекст Aztec
   const { service, isTestnet } = useAztec()
@@ -73,6 +74,29 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
     }
   }, [isOpen, auctionId, service, isTestnet])
 
+  // Проверяем состояние контракта при открытии модала
+  useEffect(() => {
+    if (isOpen && service && isTestnet) {
+      // Для testnet проверяем доступность контракта
+      const checkContractStatus = async () => {
+        try {
+          const contractAddress = service.getContractAddress()
+          if (!contractAddress) {
+            setContractWarning('Контракт Aztec еще не развернут в testnet. Переключитесь в демо режим (Sandbox) для тестирования функционала.')
+          } else {
+            setContractWarning('')
+          }
+        } catch (error) {
+          setContractWarning('Ошибка проверки состояния контракта. Рекомендуется использовать демо режим.')
+        }
+      }
+      
+      checkContractStatus()
+    } else {
+      setContractWarning('')
+    }
+  }, [isOpen, service, isTestnet])
+
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     setIsLoading(true)
@@ -93,6 +117,11 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
         throw new Error('Сервис не инициализирован')
       }
 
+      // Проверяем, подключен ли кошелек
+      if (!service.getWalletAddress()) {
+        throw new Error('Сначала подключите кошелек')
+      }
+
       // Используем сервис из контекста
       if (auctionId) {
         await service.placeBid(auctionId, amount)
@@ -108,7 +137,16 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
       }
       
     } catch (err: any) {
-      setError(err.message || 'Ошибка отправки ставки')
+      let errorMessage = err.message || 'Ошибка отправки ставки'
+      
+      // Обрабатываем специфические ошибки
+      if (errorMessage.includes('Контракт не подключен') || errorMessage.includes('compiled contract')) {
+        errorMessage = 'Контракт Aztec еще не развернут. Переключитесь в демо режим (Sandbox) для тестирования функционала.'
+      } else if (errorMessage.includes('Кошелек не подключен')) {
+        errorMessage = 'Сначала подключите кошелек в панели справа'
+      }
+      
+      setError(errorMessage)
       console.error('Ошибка отправки ставки:', err)
     } finally {
       setIsLoading(false)
@@ -174,6 +212,18 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
                 </div>
               )}
 
+              {contractWarning && (
+                <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+                  <div className="flex items-start">
+                    <div className="text-yellow-600 mr-2">⚠️</div>
+                    <div>
+                      <h4 className="font-medium mb-1">Внимание</h4>
+                      <p className="text-sm">{contractWarning}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -231,9 +281,9 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
                   <button
                     type="submit"
                     className="flex-1 btn-primary disabled:opacity-50"
-                    disabled={isLoading}
+                    disabled={isLoading || !!contractWarning}
                   >
-                    {isLoading ? 'Отправляется через Aztec...' : 'Отправить Ставку'}
+                    {isLoading ? 'Отправляется через Aztec...' : contractWarning ? 'Переключитесь в демо режим' : 'Отправить Ставку'}
                   </button>
                 </div>
               </form>

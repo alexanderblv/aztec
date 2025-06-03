@@ -48,6 +48,7 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
             : 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
           await newService.initialize(testnetUrl)
           console.log('🌐 Подключен к Aztec Testnet')
+          console.warn('⚠️ Контракт еще не развернут. Для размещения ставок необходимо скомпилировать и развернуть контракт или переключиться в демо режим.')
         } else {
           await newService.initialize()
           console.log('🔧 Подключен к Aztec Sandbox (демо)')
@@ -58,10 +59,17 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
         console.error('Ошибка инициализации Aztec сервиса:', error)
         // В случае ошибки с testnet, падаем обратно на демо
         if (network === 'testnet') {
-          console.log('Переключение на демо режим из-за ошибки')
-          await aztecDemoService.initialize()
-          setService(aztecDemoService)
-          setNetwork('sandbox')
+          console.log('⚠️ Переключение на демо режим из-за ошибки подключения к testnet')
+          try {
+            await aztecDemoService.initialize()
+            setService(aztecDemoService)
+            setNetwork('sandbox')
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('aztecNetwork', 'sandbox')
+            }
+          } catch (demoError) {
+            console.error('Критическая ошибка: не удалось инициализировать даже демо сервис:', demoError)
+          }
         }
       }
     }
