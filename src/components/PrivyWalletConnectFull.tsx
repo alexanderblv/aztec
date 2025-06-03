@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 interface PrivyWalletConnectFullProps {
   onWalletConnected: (address: string) => void
@@ -154,10 +154,12 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError }: P
   try {
     const React = require('react')
     const { PrivyProvider } = require('@privy-io/react-auth')
-    const { WagmiProvider } = require('@privy-io/wagmi')
+    // Temporarily comment out WagmiProvider from @privy-io/wagmi to avoid export issues
+    // const { WagmiProvider } = require('@privy-io/wagmi')
     const { QueryClient, QueryClientProvider } = require('@tanstack/react-query')
     const { mainnet, polygon, sepolia } = require('viem/chains')
     const { http, createConfig } = require('wagmi')
+    const { WagmiProvider } = require('wagmi')
 
     const config = createConfig({
       chains: [mainnet, polygon, sepolia],
@@ -194,7 +196,9 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError }: P
       )
     ))
   } catch (e) {
-    onError?.('Ошибка инициализации Privy: ' + e.message)
+    // Fix TypeScript error by properly handling unknown type
+    const errorMessage = e instanceof Error ? e.message : 'Неизвестная ошибка'
+    onError?.('Ошибка инициализации Privy: ' + errorMessage)
     return (
       <div className="card max-w-md mx-auto">
         <div className="text-center">
