@@ -9,6 +9,7 @@ import BidModal from '@/components/BidModal'
 import PrivyWalletConnectFull from '@/components/PrivyWalletConnectFull'
 import WalletConnect from '@/components/WalletConnect'
 import NetworkSelector from '@/components/NetworkSelector'
+import NetworkStatusAlert from '@/components/NetworkStatusAlert'
 
 export default function Home() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -214,6 +215,9 @@ export default function Home() {
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Статус сети */}
+        <NetworkStatusAlert />
+
         {/* Информация о текущей сети */}
         <div className="mb-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
