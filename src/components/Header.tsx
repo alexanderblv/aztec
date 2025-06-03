@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-
 interface HeaderProps {
   walletAddress: string
   onDisconnect: () => void
@@ -9,21 +7,9 @@ interface HeaderProps {
 }
 
 export default function Header({ walletAddress, onDisconnect, onCreateAuction }: HeaderProps) {
-  const [isDisconnecting, setIsDisconnecting] = useState(false)
-
   const formatAddress = (address: string) => {
     if (!address) return ''
     return `${address.slice(0, 6)}...${address.slice(-4)}`
-  }
-
-  const handleDisconnect = async () => {
-    setIsDisconnecting(true)
-    
-    // Добавляем небольшую задержку, чтобы дать время Privy завершить logout
-    setTimeout(() => {
-      onDisconnect()
-      setIsDisconnecting(false)
-    }, 1000)
   }
 
   return (
@@ -43,7 +29,6 @@ export default function Header({ walletAddress, onDisconnect, onCreateAuction }:
             <button
               onClick={onCreateAuction}
               className="btn-primary"
-              disabled={isDisconnecting}
             >
               + Создать Аукцион
             </button>
@@ -56,11 +41,10 @@ export default function Header({ walletAddress, onDisconnect, onCreateAuction }:
             </div>
 
             <button
-              onClick={handleDisconnect}
+              onClick={onDisconnect}
               className="btn-secondary text-sm"
-              disabled={isDisconnecting}
             >
-              {isDisconnecting ? 'Отключение...' : 'Отключить'}
+              Отключить
             </button>
           </div>
         </div>

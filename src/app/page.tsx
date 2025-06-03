@@ -19,7 +19,6 @@ export default function Home() {
   const [aztecNetwork, setAztecNetwork] = useState<'sandbox' | 'testnet'>('sandbox')
   const [privyError, setPrivyError] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
-  const [isDisconnecting, setIsDisconnecting] = useState(false)
 
   useEffect(() => {
     // Проверяем состояние подключения кошелька при загрузке
@@ -43,27 +42,16 @@ export default function Home() {
   const handleWalletConnected = (address: string) => {
     setWalletAddress(address)
     setIsWalletConnected(true)
-    setIsDisconnecting(false)
     localStorage.setItem('walletAddress', address)
     localStorage.setItem('walletMode', walletMode)
     localStorage.setItem('aztecNetwork', aztecNetwork)
   }
 
   const handleDisconnectWallet = () => {
-    if (walletMode === 'privy') {
-      // Для Privy не сбрасываем состояние сразу, ждем обратного вызова
-      setIsDisconnecting(true)
-    } else {
-      // Для демо режима отключаем сразу
-      completeDisconnection()
-    }
-  }
-
-  const completeDisconnection = () => {
+    // Сразу очищаем состояние для всех типов кошельков
     setIsWalletConnected(false)
     setWalletAddress('')
     setPrivyError('')
-    setIsDisconnecting(false)
     localStorage.removeItem('walletAddress')
     localStorage.removeItem('walletMode')
     localStorage.removeItem('aztecNetwork')
@@ -83,20 +71,6 @@ export default function Home() {
   const handleBidClick = (auctionId: number) => {
     setSelectedAuctionId(auctionId)
     setIsBidModalOpen(true)
-  }
-
-  // Показываем экран отключения, если в процессе отключения Privy
-  if (isDisconnecting) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="card max-w-md mx-auto">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Отключение кошелька...</p>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   if (!isWalletConnected) {
@@ -156,7 +130,7 @@ export default function Home() {
               <PrivyWalletConnectFull 
                 onWalletConnected={handleWalletConnected}
                 onError={setPrivyError}
-                onLogoutComplete={completeDisconnection}
+                onLogoutComplete={handleDisconnectWallet}
               />
               {privyError && (
                 <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded max-w-md mx-auto">
