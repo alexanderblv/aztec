@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    NEXT_PUBLIC_PRIVY_APP_ID: 'clz2h1m7w00jmpfof8v6gbyou'
+    NEXT_PUBLIC_PRIVY_APP_ID: 'cmbg3xtxt00ffju0mvd9uds6b'
   },
   webpack: (config) => {
     config.experiments = {

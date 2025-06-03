@@ -171,7 +171,7 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError }: P
     })
 
     const queryClient = new QueryClient()
-    const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'clz2h1m7w00jmpfof8v6gbyou'
+    const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbg3xtxt00ffju0mvd9uds6b'
 
     return React.createElement(PrivyProvider, {
       appId: appId,

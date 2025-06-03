@@ -14,7 +14,7 @@ export const wagmiConfig = createConfig({
 
 // Конфигурация для Privy
 export const privyConfig = {
-  appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'your-privy-app-id',
+  appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbg3xtxt00ffju0mvd9uds6b',
   config: {
     // Включенные методы входа
     loginMethods: ['email', 'wallet', 'sms', 'google', 'github'],
