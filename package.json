@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:testnet": "cp env.testnet .env.local && next dev",
+    "setup:testnet": "cp env.testnet .env.local && echo 'Testnet configuration copied to .env.local'",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

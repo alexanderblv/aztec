@@ -2,26 +2,47 @@
 
 import { useState } from 'react'
 import { aztecDemoService } from '@/lib/aztec-demo'
+import { AztecService } from '@/lib/aztec'
 
 interface WalletConnectProps {
   onWalletConnected: (address: string) => void
+  network: 'sandbox' | 'testnet'
 }
 
-export default function WalletConnect({ onWalletConnected }: WalletConnectProps) {
+export default function WalletConnect({ onWalletConnected, network }: WalletConnectProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')
   const [showPrivateKeyInput, setShowPrivateKeyInput] = useState(false)
   const [privateKey, setPrivateKey] = useState('')
+
+  // Создаем экземпляр сервиса в зависимости от выбранной сети
+  const getAztecService = () => {
+    if (network === 'testnet') {
+      return new AztecService()
+    } else {
+      return aztecDemoService
+    }
+  }
 
   const handleCreateWallet = async () => {
     setIsLoading(true)
     setError('')
     
     try {
-      await aztecDemoService.initialize()
-      const address = await aztecDemoService.createWallet()
+      const service = getAztecService()
+      
+      if (network === 'testnet') {
+        // Для testnet используем специальный URL
+        const testnetUrl = process.env.NEXT_PUBLIC_AZTEC_PXE_URL || 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
+        await (service as AztecService).initialize(testnetUrl)
+      } else {
+        await service.initialize()
+      }
+      
+      const address = await service.createWallet()
       onWalletConnected(address)
     } catch (err: any) {
+      console.error('Ошибка создания кошелька:', err)
       setError(err.message || 'Ошибка создания кошелька')
     } finally {
       setIsLoading(false)
@@ -38,10 +59,20 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
     setError('')
     
     try {
-      await aztecDemoService.initialize()
-      const address = await aztecDemoService.connectWallet(privateKey)
+      const service = getAztecService()
+      
+      if (network === 'testnet') {
+        // Для testnet используем специальный URL
+        const testnetUrl = process.env.NEXT_PUBLIC_AZTEC_PXE_URL || 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
+        await (service as AztecService).initialize(testnetUrl)
+      } else {
+        await service.initialize()
+      }
+      
+      const address = await service.connectWallet(privateKey)
       onWalletConnected(address)
     } catch (err: any) {
+      console.error('Ошибка подключения кошелька:', err)
       setError(err.message || 'Ошибка подключения кошелька')
     } finally {
       setIsLoading(false)
@@ -50,7 +81,9 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
 
   return (
     <div className="card max-w-md mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-6">Подключение к Aztec</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">
+        Подключение к Aztec {network === 'testnet' ? 'Testnet' : 'Sandbox'}
+      </h2>
       
       {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -111,9 +144,15 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
       </div>
 
       <div className="mt-6 text-sm text-gray-600 text-center">
-        <p>
-          ⚠️ Это демо-версия. В продакшене используйте настоящую интеграцию с Aztec Sandbox.
-        </p>
+        {network === 'testnet' ? (
+          <p>
+            🌐 Подключение к реальной тестовой сети Aztec Alpha Testnet
+          </p>
+        ) : (
+          <p>
+            ⚠️ Это демо-версия. В продакшене используйте настоящую интеграцию с Aztec Sandbox.
+          </p>
+        )}
       </div>
     </div>
   )
