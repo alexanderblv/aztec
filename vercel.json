@@ -2,7 +2,7 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
+  "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": ".next",
   "public": false,
   "env": {
@@ -14,6 +14,11 @@
     }
   },
   "regions": ["iad1"],
+  "functions": {
+    "src/pages/api/**/*.{js,ts}": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

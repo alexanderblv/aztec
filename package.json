@@ -15,9 +15,9 @@
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@aztec/aztec.js": "latest",
-    "@aztec/accounts": "latest",
-    "@aztec/types": "latest",
+    "@aztec/aztec.js": "0.87.5",
+    "@aztec/accounts": "0.87.5",
+    "@aztec/types": "0.87.5",
     "ethers": "^6.8.0",
     "tailwindcss": "^3.3.0",
     "autoprefixer": "^10.4.16",
@@ -28,7 +28,7 @@
     "framer-motion": "^10.16.4",
     "@privy-io/react-auth": "^1.69.0",
     "@privy-io/wagmi": "^0.2.12",
-    "viem": "^2.0.0",
+    "viem": "2.30.6",
     "wagmi": "^2.0.0",
     "@tanstack/react-query": "^5.0.0"
   },
@@ -39,5 +39,11 @@
     "typescript": "^5.2.0",
     "eslint": "^8.51.0",
     "eslint-config-next": "^14.0.0"
+  },
+  "overrides": {
+    "viem": "2.30.6"
+  },
+  "resolutions": {
+    "viem": "2.30.6"
   }
 } 
