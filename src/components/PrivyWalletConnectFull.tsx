@@ -22,32 +22,30 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
   
   const { wallets } = useWallets()
   
-  // Добавим состояние для отслеживания того, был ли пользователь ранее аутентифицирован
-  const [wasAuthenticated, setWasAuthenticated] = useState(false)
+  // Упрощенное состояние - только отслеживаем, был ли инициирован logout
+  const [userInitiatedLogout, setUserInitiatedLogout] = useState(false)
 
   useEffect(() => {
-    if (authenticated && user && wallets.length > 0) {
+    if (authenticated && user && wallets.length > 0 && !userInitiatedLogout) {
       const wallet = wallets[0]
       onWalletConnected(wallet.address)
-      setWasAuthenticated(true)
     }
-  }, [authenticated, user, wallets, onWalletConnected])
-
-  // Отслеживаем изменение статуса аутентификации
-  useEffect(() => {
-    if (ready && !authenticated && wasAuthenticated) {
-      // Только если пользователь был ранее аутентифицирован и теперь отключился
-      onLogoutComplete?.()
-      setWasAuthenticated(false)
-    }
-  }, [ready, authenticated, wasAuthenticated, onLogoutComplete])
+  }, [authenticated, user, wallets, onWalletConnected, userInitiatedLogout])
 
   const handleLogout = async () => {
     try {
+      // Устанавливаем флаг перед logout
+      setUserInitiatedLogout(true)
+      
+      // Сразу вызываем callback отключения
+      onLogoutComplete?.()
+      
+      // Выполняем logout в Privy
       await logout()
+      
     } catch (error) {
       console.error('Ошибка при отключении:', error)
-      // В случае ошибки все равно очищаем состояние
+      // В случае ошибки все равно считаем что отключились
       onLogoutComplete?.()
     }
   }

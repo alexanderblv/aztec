@@ -68,6 +68,13 @@ export default function Home() {
     localStorage.removeItem('walletAddress')
     localStorage.removeItem('walletMode')
     localStorage.removeItem('aztecNetwork')
+    
+    // Принудительно перезагружаем страницу чтобы полностью очистить состояние Privy
+    if (walletMode === 'privy') {
+      setTimeout(() => {
+        window.location.reload()
+      }, 100)
+    }
   }
 
   const handleNetworkChange = (network: 'sandbox' | 'testnet') => {
