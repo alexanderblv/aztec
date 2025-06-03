@@ -92,7 +92,7 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
       setWalletAddress(savedAddress)
       setIsConnected(true)
     }
-  }, [])
+  }, [network])
 
   const switchNetwork = async (newNetwork: 'sandbox' | 'testnet') => {
     if (newNetwork === network) return

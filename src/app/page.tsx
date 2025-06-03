@@ -206,7 +206,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <Header 
-        walletAddress={walletAddress}
+        walletAddress={walletAddress || ''}
         onDisconnect={handleDisconnectWallet}
         onCreateAuction={() => setIsCreateModalOpen(true)}
         walletMode={walletMode}
