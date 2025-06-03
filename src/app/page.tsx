@@ -5,7 +5,7 @@ import Header from '@/components/Header'
 import AuctionList from '@/components/AuctionList'
 import CreateAuctionModal from '@/components/CreateAuctionModal'
 import BidModal from '@/components/BidModal'
-import PrivyWalletConnect from '@/components/PrivyWalletConnect'
+import PrivyWalletConnectFull from '@/components/PrivyWalletConnectFull'
 
 export default function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -51,7 +51,7 @@ export default function Home() {
             Добро пожаловать на платформу приватных аукционов, работающую на технологии Aztec Network. 
             Здесь ваши ставки остаются полностью конфиденциальными до завершения торгов.
           </p>
-          <PrivyWalletConnect onWalletConnected={handleWalletConnected} />
+          <PrivyWalletConnectFull onWalletConnected={handleWalletConnected} />
           
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="card text-center">

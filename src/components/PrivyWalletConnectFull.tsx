@@ -1,5 +1,3 @@
-// Полная интеграция с Privy - раскомментируйте после установки зависимостей
-/*
 'use client'
 
 import { usePrivy, useWallets } from '@privy-io/react-auth'
@@ -47,6 +45,11 @@ export default function PrivyWalletConnectFull({ onWalletConnected }: PrivyWalle
           <p className="text-gray-600 mb-4">
             {user?.email?.address || user?.phone?.number || 'Пользователь авторизован'}
           </p>
+          {wallets.length > 0 && (
+            <p className="text-sm text-gray-500 mb-4 font-mono">
+              {wallets[0].address.slice(0, 6)}...{wallets[0].address.slice(-4)}
+            </p>
+          )}
           <button
             onClick={logout}
             className="btn-secondary"
@@ -68,19 +71,20 @@ export default function PrivyWalletConnectFull({ onWalletConnected }: PrivyWalle
 
       <button
         onClick={login}
-        className="w-full btn-primary"
+        className="w-full btn-primary flex items-center justify-center space-x-2"
       >
-        Войти
+        <span>🔐</span>
+        <span>Войти</span>
       </button>
 
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
         <h3 className="font-semibold text-blue-900 mb-2">Поддерживаемые методы входа:</h3>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Email</li>
-          <li>• SMS</li>
-          <li>• Google</li>
-          <li>• Внешние кошельки (MetaMask, WalletConnect)</li>
-          <li>• Встроенные кошельки Privy</li>
+          <li>• 📧 Email</li>
+          <li>• 📱 SMS</li>
+          <li>• 🌐 Google</li>
+          <li>• 👛 Внешние кошельки (MetaMask, WalletConnect)</li>
+          <li>• 🔒 Встроенные кошельки Privy</li>
         </ul>
       </div>
 
@@ -88,21 +92,6 @@ export default function PrivyWalletConnectFull({ onWalletConnected }: PrivyWalle
         <p>
           🔒 Безопасность обеспечивается технологией TEE и распределенным шардингом ключей
         </p>
-      </div>
-    </div>
-  )
-}
-*/
-
-// Временная заглушка - удалите после установки зависимостей
-export default function PrivyWalletConnectFull() {
-  return (
-    <div className="card max-w-md mx-auto">
-      <div className="text-center text-gray-600">
-        <p>Для полной интеграции с Privy установите зависимости:</p>
-        <code className="block mt-2 p-2 bg-gray-100 rounded text-sm">
-          npm install @privy-io/react-auth @privy-io/wagmi @tanstack/react-query viem wagmi
-        </code>
       </div>
     </div>
   )
