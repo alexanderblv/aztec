@@ -21,21 +21,26 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
   } = usePrivy()
   
   const { wallets } = useWallets()
+  
+  // Добавим состояние для отслеживания того, был ли пользователь ранее аутентифицирован
+  const [wasAuthenticated, setWasAuthenticated] = useState(false)
 
   useEffect(() => {
     if (authenticated && user && wallets.length > 0) {
       const wallet = wallets[0]
       onWalletConnected(wallet.address)
+      setWasAuthenticated(true)
     }
   }, [authenticated, user, wallets, onWalletConnected])
 
   // Отслеживаем изменение статуса аутентификации
   useEffect(() => {
-    if (ready && !authenticated) {
-      // Если пользователь больше не аутентифицирован, вызываем колбэк
+    if (ready && !authenticated && wasAuthenticated) {
+      // Только если пользователь был ранее аутентифицирован и теперь отключился
       onLogoutComplete?.()
+      setWasAuthenticated(false)
     }
-  }, [ready, authenticated, onLogoutComplete])
+  }, [ready, authenticated, wasAuthenticated, onLogoutComplete])
 
   const handleLogout = async () => {
     try {

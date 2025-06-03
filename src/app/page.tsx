@@ -25,18 +25,26 @@ export default function Home() {
     const savedAddress = localStorage.getItem('walletAddress')
     const savedMode = localStorage.getItem('walletMode') as 'privy' | 'demo'
     const savedNetwork = localStorage.getItem('aztecNetwork') as 'sandbox' | 'testnet'
+    const privyLoggedOut = localStorage.getItem('privyLoggedOut')
     
-    if (savedAddress) {
+    if (savedAddress && savedMode === 'demo') {
+      // Для демо режима всегда восстанавливаем состояние
       setWalletAddress(savedAddress)
       setIsWalletConnected(true)
-      if (savedMode) {
-        setWalletMode(savedMode)
-      }
+      setWalletMode(savedMode)
+    } else if (savedAddress && savedMode === 'privy' && !privyLoggedOut) {
+      // Для Privy восстанавливаем только если пользователь не был явно отключен
+      setWalletAddress(savedAddress)
+      setIsWalletConnected(true)
+      setWalletMode(savedMode)
     }
     
     if (savedNetwork) {
       setAztecNetwork(savedNetwork)
     }
+    
+    // Очищаем флаг отключения при загрузке
+    localStorage.removeItem('privyLoggedOut')
   }, [])
 
   const handleWalletConnected = (address: string) => {
@@ -48,6 +56,11 @@ export default function Home() {
   }
 
   const handleDisconnectWallet = () => {
+    // Устанавливаем флаг отключения для Privy кошельков
+    if (walletMode === 'privy') {
+      localStorage.setItem('privyLoggedOut', 'true')
+    }
+    
     // Сразу очищаем состояние для всех типов кошельков
     setIsWalletConnected(false)
     setWalletAddress('')
