@@ -16,6 +16,7 @@ export default function Home() {
   const [walletAddress, setWalletAddress] = useState<string>('')
   const [walletMode, setWalletMode] = useState<'privy' | 'demo'>('privy')
   const [privyError, setPrivyError] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
 
   useEffect(() => {
     // Проверяем состояние подключения кошелька при загрузке
@@ -150,14 +151,42 @@ export default function Home() {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Активные Аукционы
+            Аукционы
           </h1>
           <p className="text-gray-600">
             Участвуйте в приватных аукционах. Ваши ставки останутся конфиденциальными до завершения торгов.
           </p>
         </div>
 
-        <AuctionList onBidClick={handleBidClick} />
+        {/* Вкладки */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('active')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'active'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Активные аукционы
+              </button>
+              <button
+                onClick={() => setActiveTab('completed')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'completed'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Завершенные аукционы
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        <AuctionList onBidClick={handleBidClick} filterType={activeTab} />
       </main>
 
       <CreateAuctionModal 

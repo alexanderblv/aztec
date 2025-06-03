@@ -17,9 +17,10 @@ interface Auction {
 
 interface AuctionListProps {
   onBidClick: (auctionId: number) => void
+  filterType: 'active' | 'completed'
 }
 
-export default function AuctionList({ onBidClick }: AuctionListProps) {
+export default function AuctionList({ onBidClick, filterType }: AuctionListProps) {
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -64,6 +65,30 @@ export default function AuctionList({ onBidClick }: AuctionListProps) {
           winner: '0x5555...3333',
           winningBid: 3500,
         },
+        {
+          id: 4,
+          itemName: 'Антикварная ваза',
+          description: 'Китайская ваза династии Цин, XVIII век',
+          startTime: Date.now() - 14400000, // 4 часа назад
+          endTime: Date.now() - 3600000, // закончился час назад
+          minBid: 1500,
+          creator: '0x7777...8888',
+          isActive: false,
+          winner: '0x2222...4444',
+          winningBid: 2800,
+        },
+        {
+          id: 5,
+          itemName: 'Винтажный мотоцикл',
+          description: 'Harley-Davidson 1960 года, отреставрированный',
+          startTime: Date.now() - 21600000, // 6 часов назад
+          endTime: Date.now() - 7200000, // закончился 2 часа назад
+          minBid: 8000,
+          creator: '0xaaaa...bbbb',
+          isActive: false,
+          winner: '0xcccc...dddd',
+          winningBid: 12500,
+        },
       ]
       
       setAuctions(mockAuctions)
@@ -94,6 +119,11 @@ export default function AuctionList({ onBidClick }: AuctionListProps) {
     return `${address.slice(0, 6)}...${address.slice(-4)}`
   }
 
+  // Фильтруем аукционы в зависимости от выбранной вкладки
+  const filteredAuctions = auctions.filter(auction => {
+    return filterType === 'active' ? auction.isActive : !auction.isActive
+  })
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -102,15 +132,21 @@ export default function AuctionList({ onBidClick }: AuctionListProps) {
     )
   }
 
-  if (auctions.length === 0) {
+  if (filteredAuctions.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">🏛️</div>
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Пока нет активных аукционов
+          {filterType === 'active' 
+            ? 'Пока нет активных аукционов' 
+            : 'Пока нет завершенных аукционов'
+          }
         </h3>
         <p className="text-gray-600">
-          Создайте первый аукцион и начните торги!
+          {filterType === 'active' 
+            ? 'Создайте первый аукцион и начните торги!' 
+            : 'Завершенные аукционы появятся здесь после окончания торгов.'
+          }
         </p>
       </div>
     )
@@ -118,7 +154,7 @@ export default function AuctionList({ onBidClick }: AuctionListProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {auctions.map((auction) => (
+      {filteredAuctions.map((auction) => (
         <div key={auction.id} className="card hover:shadow-lg transition-shadow duration-200">
           <div className="flex items-start justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900 flex-1">
