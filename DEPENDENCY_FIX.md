@@ -18,10 +18,12 @@ npm error Conflicting peer dependency: viem@2.30.6
 ## Solution
 
 ### 1. Fixed Aztec Version Pinning
-Changed from `"latest"` to specific stable version `"0.87.5"` for:
+Changed from `"latest"` to specific stable version `"0.76.4"` for:
 - `@aztec/aztec.js`
 - `@aztec/accounts` 
 - `@aztec/types`
+
+**Note**: Version `0.87.5` was initially tried but doesn't exist. The latest available version is `0.76.4`.
 
 ### 2. Updated Viem Version
 Set `viem` to `"2.30.6"` which satisfies both Aztec and Privy requirements.
@@ -65,4 +67,5 @@ To test locally:
 When updating dependencies:
 1. Check compatibility between Aztec and Privy versions
 2. Update viem version if needed to satisfy both
-3. Test deployment on Vercel before pushing to main branch 
+3. Test deployment on Vercel before pushing to main branch
+4. Check available versions on npm before pinning specific versions 
