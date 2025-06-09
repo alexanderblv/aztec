@@ -27,11 +27,11 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Используем единый контекст Aztec
+  // Using unified Aztec context
   const { service, isTestnet } = useAztec()
 
   useEffect(() => {
-    // Загружаем реальные аукционы из сервиса
+    // Load real auctions from service
     const loadAuctions = async () => {
       setLoading(true)
       
@@ -44,7 +44,7 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
         let auctionsList: Auction[] = []
         
         if (!isTestnet) {
-          // Для демо-режима используем демо данные
+          // For demo mode use demo data
           const demoAuctions = await service.getAllAuctions()
           auctionsList = demoAuctions.map((auction: any) => ({
             id: auction.id,
@@ -59,13 +59,13 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
             winningBid: undefined
           }))
           
-          // Если нет аукционов в демо сервисе, создаем пример
+          // If no auctions in demo service, create examples
           if (auctionsList.length === 0) {
             const mockAuctions: Auction[] = [
               {
                 id: 1,
-                itemName: 'Редкая винтажная картина',
-                description: 'Оригинальная картина 1950-х годов в отличном состоянии',
+                itemName: 'Rare Vintage Painting',
+                description: 'Original painting from the 1950s in excellent condition',
                 startTime: Date.now() - 3600000,
                 endTime: Date.now() + 3600000,
                 minBid: 1000,
@@ -74,8 +74,8 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
               },
               {
                 id: 2,
-                itemName: 'Коллекционные часы Rolex',
-                description: 'Винтажные часы Rolex Submariner 1970-го года',
+                itemName: 'Collectible Rolex Watch',
+                description: 'Vintage Rolex Submariner from 1970',
                 startTime: Date.now() - 7200000,
                 endTime: Date.now() + 1800000,
                 minBid: 5000,
@@ -84,8 +84,8 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
               },
               {
                 id: 3,
-                itemName: 'Первое издание книги',
-                description: 'Первое издание "Война и мир" Л.Н. Толстого',
+                itemName: 'First Edition Book',
+                description: 'First edition of "War and Peace" by L.N. Tolstoy',
                 startTime: Date.now() - 10800000,
                 endTime: Date.now() - 1800000,
                 minBid: 2000,
@@ -96,8 +96,8 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
               },
               {
                 id: 4,
-                itemName: 'Антикварная ваза',
-                description: 'Китайская ваза династии Цин, XVIII век',
+                itemName: 'Antique Vase',
+                description: 'Chinese vase from Qing Dynasty, 18th century',
                 startTime: Date.now() - 14400000,
                 endTime: Date.now() - 3600000,
                 minBid: 1500,
@@ -108,8 +108,8 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
               },
               {
                 id: 5,
-                itemName: 'Винтажный мотоцикл',
-                description: 'Harley-Davidson 1960 года, отреставрированный',
+                itemName: 'Vintage Motorcycle',
+                description: 'Restored Harley-Davidson from 1960',
                 startTime: Date.now() - 21600000,
                 endTime: Date.now() - 7200000,
                 minBid: 8000,
@@ -122,7 +122,7 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
             auctionsList = mockAuctions
           }
         } else {
-          // Для testnet пытаемся загрузить реальные аукционы
+          // For testnet try to load real auctions
           try {
             const auctionCount = await service.getAuctionCount()
             
@@ -142,7 +142,7 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
                         winningBid = winnerInfo.winningBid
                       }
                     } catch (error) {
-                      // Игнорируем ошибки получения победителя
+                      // Ignore winner fetching errors
                     }
                   }
                   
@@ -160,17 +160,17 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
                   })
                 }
               } catch (error) {
-                console.warn(`Не удалось загрузить аукцион ${i}:`, error)
+                console.warn(`Failed to load auction ${i}:`, error)
               }
             }
             
-            // Если нет реальных аукционов, показываем тестовые
+            // If no real auctions, show test ones
             if (auctionsList.length === 0) {
               const testAuctions: Auction[] = [
                 {
                   id: 1,
-                  itemName: 'Тестовый аукцион Testnet #1',
-                  description: 'Первый тестовый аукцион на Aztec Testnet',
+                  itemName: 'Test Auction Testnet #1',
+                  description: 'First test auction on Aztec Testnet',
                   startTime: Date.now() - 3600000,
                   endTime: Date.now() + 7200000,
                   minBid: 100,
@@ -181,13 +181,13 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
               auctionsList = testAuctions
             }
           } catch (error) {
-            console.error('Ошибка загрузки аукционов из testnet:', error)
-            // Показываем тестовые аукционы в случае ошибки
+            console.error('Error loading auctions from testnet:', error)
+            // Show test auctions in case of error
             const testAuctions: Auction[] = [
               {
                 id: 1,
-                itemName: 'Тестовый аукцион (оффлайн)',
-                description: 'Аукцион недоступен - проблемы с подключением к testnet',
+                itemName: 'Test Auction (offline)',
+                description: 'Auction unavailable - connection issues with testnet',
                 startTime: Date.now() - 3600000,
                 endTime: Date.now() + 7200000,
                 minBid: 100,
@@ -201,8 +201,8 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
         
         setAuctions(auctionsList)
       } catch (error) {
-        console.error('Общая ошибка загрузки аукционов:', error)
-        // В случае любой ошибки показываем базовые демо аукционы
+        console.error('General error loading auctions:', error)
+        // In case of any error show basic demo auctions
         setAuctions([])
       } finally {
         setLoading(false)
@@ -217,23 +217,23 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
     const remaining = endTime - now
     
     if (remaining <= 0) {
-      return 'Завершен'
+      return 'Completed'
     }
     
     const hours = Math.floor(remaining / (1000 * 60 * 60))
     const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
     
     if (hours > 0) {
-      return `${hours}ч ${minutes}м`
+      return `${hours}h ${minutes}m`
     }
-    return `${minutes}м`
+    return `${minutes}m`
   }
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`
   }
 
-  // Фильтруем аукционы в зависимости от выбранной вкладки
+  // Filter auctions based on selected tab
   const filteredAuctions = auctions.filter(auction => {
     return filterType === 'active' ? auction.isActive : !auction.isActive
   })
@@ -243,7 +243,7 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
         <div className="ml-4 text-gray-600">
-          Загрузка аукционов из Aztec {typeof window !== 'undefined' && localStorage.getItem('aztecNetwork') === 'testnet' ? 'Testnet' : 'Sandbox'}...
+          Loading auctions from Aztec {typeof window !== 'undefined' && localStorage.getItem('aztecNetwork') === 'testnet' ? 'Testnet' : 'Sandbox'}...
         </div>
       </div>
     )
@@ -257,18 +257,18 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
         <div className="text-6xl mb-4">🏛️</div>
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
           {filterType === 'active' 
-            ? 'Пока нет активных аукционов' 
-            : 'Пока нет завершенных аукционов'
+            ? 'No active auctions yet' 
+            : 'No completed auctions yet'
           }
         </h3>
         <p className="text-gray-600 mb-4">
           {filterType === 'active' 
-            ? 'Создайте первый аукцион и начните торги!' 
-            : 'Завершенные аукционы появятся здесь после окончания торгов.'
+            ? 'Create the first auction and start trading!' 
+            : 'Completed auctions will appear here after trading ends.'
           }
         </p>
         <p className="text-sm text-blue-600">
-          Текущая сеть: {network === 'testnet' ? 'Aztec Alpha Testnet' : 'Aztec Sandbox (демо)'}
+          Current network: {network === 'testnet' ? 'Aztec Alpha Testnet' : 'Aztec Sandbox (demo)'}
         </p>
       </div>
     )
@@ -277,7 +277,7 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
   return (
     <div className="space-y-4">
       <div className="text-sm text-gray-600 mb-4">
-        Загружено {filteredAuctions.length} аукцион(ов) из {typeof window !== 'undefined' && localStorage.getItem('aztecNetwork') === 'testnet' ? 'Aztec Testnet' : 'Aztec Sandbox'}
+        Loaded {filteredAuctions.length} auction(s) from {typeof window !== 'undefined' && localStorage.getItem('aztecNetwork') === 'testnet' ? 'Aztec Testnet' : 'Aztec Sandbox'}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -292,7 +292,7 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-gray-100 text-gray-800'
               }`}>
-                {auction.isActive ? 'Активен' : 'Завершен'}
+                {auction.isActive ? 'Active' : 'Completed'}
               </span>
             </div>
 
@@ -302,16 +302,16 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
 
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Мин. ставка:</span>
+                <span className="text-gray-500">Min. bid:</span>
                 <span className="font-medium">{auction.minBid} ETH</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Создатель:</span>
+                <span className="text-gray-500">Creator:</span>
                 <span className="font-medium">{formatAddress(auction.creator)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">
-                  {auction.isActive ? 'Осталось:' : 'Статус:'}
+                  {auction.isActive ? 'Remaining:' : 'Status:'}
                 </span>
                 <span className={`font-medium ${
                   auction.isActive ? 'text-primary-600' : 'text-gray-600'
@@ -323,11 +323,11 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
               {auction.winner && auction.winningBid && (
                 <div className="bg-green-50 p-2 rounded mt-2">
                   <div className="flex justify-between text-xs">
-                    <span className="text-green-700">Победитель:</span>
+                    <span className="text-green-700">Winner:</span>
                     <span className="font-medium text-green-800">{formatAddress(auction.winner)}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-green-700">Выигрышная ставка:</span>
+                    <span className="text-green-700">Winning bid:</span>
                     <span className="font-medium text-green-800">{auction.winningBid} ETH</span>
                   </div>
                 </div>
@@ -339,11 +339,11 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
                 onClick={() => onBidClick(auction.id)}
                 className="w-full btn-primary"
               >
-                🔒 Сделать приватную ставку
+                🔒 Place Private Bid
               </button>
             ) : (
               <div className="text-center text-gray-500 text-sm py-2">
-                Аукцион завершен
+                Auction completed
               </div>
             )}
           </div>

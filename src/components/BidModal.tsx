@@ -26,25 +26,25 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
   const [auctionInfo, setAuctionInfo] = useState<AuctionInfo | null>(null)
   const [contractWarning, setContractWarning] = useState('')
   
-  // Используем единый контекст Aztec
+  // Using unified Aztec context
   const { service, isTestnet } = useAztec()
 
   useEffect(() => {
     if (isOpen && auctionId && service) {
-      // Загружаем информацию об аукционе из реального сервиса
+      // Load auction information from real service
       const loadAuctionInfo = async () => {
         try {
-          // Для демо-режима используем существующую логику
+          // For demo mode use existing logic
           if (!isTestnet) {
             const mockAuctions = [
-              { id: 1, itemName: 'Редкая винтажная картина', minBid: 1000, endTime: Date.now() + 3600000 },
-              { id: 2, itemName: 'Коллекционные часы Rolex', minBid: 5000, endTime: Date.now() + 1800000 },
+              { id: 1, itemName: 'Rare Vintage Painting', minBid: 1000, endTime: Date.now() + 3600000 },
+              { id: 2, itemName: 'Collectible Rolex Watch', minBid: 5000, endTime: Date.now() + 1800000 },
             ]
             
             const auction = mockAuctions.find(a => a.id === auctionId)
             setAuctionInfo(auction || null)
           } else {
-            // Для testnet пытаемся загрузить реальные данные
+            // For testnet try to load real data
             try {
               const realAuctionInfo = await service.getAuctionInfo(auctionId)
               if (realAuctionInfo) {
@@ -56,17 +56,17 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
                 })
               }
             } catch (error) {
-              console.warn('Не удалось загрузить информацию об аукционе, используем демо данные')
+              console.warn('Failed to load auction info, using demo data')
               const mockAuctions = [
-                { id: 1, itemName: 'Тестовый аукцион 1', minBid: 100, endTime: Date.now() + 3600000 },
-                { id: 2, itemName: 'Тестовый аукцион 2', minBid: 500, endTime: Date.now() + 1800000 },
+                { id: 1, itemName: 'Test Auction 1', minBid: 100, endTime: Date.now() + 3600000 },
+                { id: 2, itemName: 'Test Auction 2', minBid: 500, endTime: Date.now() + 1800000 },
               ]
               const auction = mockAuctions.find(a => a.id === auctionId)
               setAuctionInfo(auction || null)
             }
           }
         } catch (error) {
-          console.error('Ошибка загрузки информации об аукционе:', error)
+          console.error('Error loading auction information:', error)
         }
       }
       
@@ -74,20 +74,20 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
     }
   }, [isOpen, auctionId, service, isTestnet])
 
-  // Проверяем состояние контракта при открытии модала
+  // Check contract state when opening modal
   useEffect(() => {
     if (isOpen && service && isTestnet) {
-      // Для testnet проверяем доступность контракта
+      // For testnet check contract availability
       const checkContractStatus = async () => {
         try {
           const contractAddress = service.getContractAddress()
           if (!contractAddress) {
-            setContractWarning('Контракт Aztec еще не развернут в testnet. Переключитесь в демо режим (Sandbox) для тестирования функционала.')
+            setContractWarning('Aztec contract not yet deployed in testnet. Switch to demo mode (Sandbox) to test functionality.')
           } else {
             setContractWarning('')
           }
         } catch (error) {
-          setContractWarning('Ошибка проверки состояния контракта. Рекомендуется использовать демо режим.')
+          setContractWarning('Error checking contract status. Recommend using demo mode.')
         }
       }
       
@@ -106,28 +106,28 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
       const amount = parseFloat(bidAmount)
       
       if (!amount || amount <= 0) {
-        throw new Error('Введите корректную сумму ставки')
+        throw new Error('Enter a valid bid amount')
       }
       
       if (auctionInfo && amount < auctionInfo.minBid) {
-        throw new Error(`Ставка должна быть не меньше ${auctionInfo.minBid} ETH`)
+        throw new Error(`Bid must be at least ${auctionInfo.minBid} ETH`)
       }
 
       if (!service) {
-        throw new Error('Сервис не инициализирован')
+        throw new Error('Service not initialized')
       }
 
-      // Проверяем, подключен ли кошелек
+      // Check if wallet is connected
       if (!service.getWalletAddress()) {
-        throw new Error('Сначала подключите кошелек')
+        throw new Error('Please connect wallet first')
       }
 
-      // Используем сервис из контекста
+      // Use service from context
       if (auctionId) {
         await service.placeBid(auctionId, amount)
         
         setSuccess(true)
-        console.log(`Приватная ставка ${amount} ETH отправлена для аукциона ${auctionId}`)
+        console.log(`Private bid ${amount} ETH sent for auction ${auctionId}`)
         
         setTimeout(() => {
           setSuccess(false)
@@ -137,17 +137,17 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
       }
       
     } catch (err: any) {
-      let errorMessage = err.message || 'Ошибка отправки ставки'
+      let errorMessage = err.message || 'Error sending bid'
       
-      // Обрабатываем специфические ошибки
+      // Handle specific errors
       if (errorMessage.includes('Контракт не подключен') || errorMessage.includes('compiled contract')) {
-        errorMessage = 'Контракт Aztec еще не развернут. Переключитесь в демо режим (Sandbox) для тестирования функционала.'
+        errorMessage = 'Aztec contract not yet deployed. Switch to demo mode (Sandbox) to test functionality.'
       } else if (errorMessage.includes('Кошелек не подключен')) {
-        errorMessage = 'Сначала подключите кошелек в панели справа'
+        errorMessage = 'Please connect wallet in the panel on the right'
       }
       
       setError(errorMessage)
-      console.error('Ошибка отправки ставки:', err)
+      console.error('Error sending bid:', err)
     } finally {
       setIsLoading(false)
     }
@@ -155,15 +155,15 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
 
   const formatTimeRemaining = (endTime: number) => {
     const remaining = endTime - Date.now()
-    if (remaining <= 0) return 'Завершен'
+    if (remaining <= 0) return 'Completed'
     
     const hours = Math.floor(remaining / (1000 * 60 * 60))
     const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
     
     if (hours > 0) {
-      return `${hours}ч ${minutes}м`
+      return `${hours}h ${minutes}m`
     }
-    return `${minutes}м`
+    return `${minutes}m`
   }
 
   if (!isOpen || !auctionInfo) return null
@@ -174,7 +174,7 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              🔒 Приватная Ставка
+              🔒 Private Bid
             </h2>
             <button
               onClick={onClose}
@@ -188,10 +188,10 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
             <div className="text-center py-8">
               <div className="text-6xl mb-4">🔐</div>
               <h3 className="text-xl font-semibold text-green-600 mb-2">
-                Ставка зашифрована и отправлена!
+                Bid encrypted and sent!
               </h3>
               <p className="text-gray-600">
-                Ваша ставка надежно скрыта до завершения аукциона.
+                Your bid is securely hidden until the auction ends.
               </p>
             </div>
           ) : (
@@ -201,8 +201,8 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
                   {auctionInfo.itemName}
                 </h3>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Мин. ставка: {auctionInfo.minBid} ETH</span>
-                  <span>Осталось: {formatTimeRemaining(auctionInfo.endTime)}</span>
+                  <span>Min. bid: {auctionInfo.minBid} ETH</span>
+                  <span>Remaining: {formatTimeRemaining(auctionInfo.endTime)}</span>
                 </div>
               </div>
 
@@ -217,7 +217,7 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
                   <div className="flex items-start">
                     <div className="text-yellow-600 mr-2">⚠️</div>
                     <div>
-                      <h4 className="font-medium mb-1">Внимание</h4>
+                      <h4 className="font-medium mb-1">Warning</h4>
                       <p className="text-sm">{contractWarning}</p>
                     </div>
                   </div>
@@ -227,14 +227,14 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Размер ставки (ETH) *
+                    Bid Amount (ETH) *
                   </label>
                   <input
                     type="number"
                     value={bidAmount}
                     onChange={(e) => setBidAmount(e.target.value)}
                     className="input-field"
-                    placeholder={`Минимум ${auctionInfo.minBid} ETH`}
+                    placeholder={`Minimum ${auctionInfo.minBid} ETH`}
                     min={auctionInfo.minBid}
                     step="0.001"
                     disabled={isLoading}
@@ -244,13 +244,13 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
 
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h4 className="font-medium text-blue-900 mb-2 flex items-center">
-                    🔒 Как работает приватность
+                    🔒 How Privacy Works
                   </h4>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Ваша ставка шифруется на устройстве</li>
-                    <li>• Никто не видит размер вашей ставки</li>
-                    <li>• Победитель определяется zk-доказательствами</li>
-                    <li>• Раскрывается только факт победы</li>
+                    <li>• Your bid is encrypted on your device</li>
+                    <li>• No one can see your bid amount</li>
+                    <li>• Winner determined by zk-proofs</li>
+                    <li>• Only the fact of winning is revealed</li>
                   </ul>
                 </div>
 
@@ -259,11 +259,11 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
                     <div className="text-yellow-600 mr-2">⚠️</div>
                     <div>
                       <h4 className="font-medium text-yellow-900 mb-1">
-                        Важно помнить
+                        Important to Remember
                       </h4>
                       <p className="text-sm text-yellow-800">
-                        После отправки ставку нельзя изменить или отозвать. 
-                        Убедитесь в правильности суммы.
+                        After sending, bids cannot be changed or withdrawn. 
+                        Make sure the amount is correct.
                       </p>
                     </div>
                   </div>
@@ -276,14 +276,14 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
                     className="flex-1 btn-secondary"
                     disabled={isLoading}
                   >
-                    Отмена
+                    Cancel
                   </button>
                   <button
                     type="submit"
                     className="flex-1 btn-primary disabled:opacity-50"
                     disabled={isLoading || !!contractWarning}
                   >
-                    {isLoading ? 'Отправляется через Aztec...' : contractWarning ? 'Переключитесь в демо режим' : 'Отправить Ставку'}
+                    {isLoading ? 'Sending via Aztec...' : contractWarning ? 'Switch to demo mode' : 'Send Bid'}
                   </button>
                 </div>
               </form>

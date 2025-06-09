@@ -20,7 +20,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // Используем контекст Aztec
+  // Using Aztec context
   const { 
     network, 
     isConnected, 
@@ -31,40 +31,40 @@ export default function Home() {
   } = useAztec()
 
   useEffect(() => {
-    // Проверяем состояние подключения кошелька при загрузке
+    // Check wallet connection state on load
     const savedMode = localStorage.getItem('walletMode') as 'privy' | 'demo'
     const privyLoggedOut = localStorage.getItem('privyLoggedOut')
     
     if (savedMode === 'demo') {
-      // Для демо режима всегда восстанавливаем состояние
+      // For demo mode always restore state
       setWalletMode(savedMode)
     } else if (savedMode === 'privy' && privyLoggedOut !== 'true') {
-      // Для Privy восстанавливаем только если пользователь НЕ был явно отключен
+      // For Privy restore only if user wasn't explicitly disconnected
       setWalletMode(savedMode || 'privy')
     }
   }, [])
 
   const handleWalletConnected = async (address: string) => {
     try {
-      // Подключаем кошелек через контекст Aztec
+      // Connect wallet through Aztec context
       const aztecAddress = await connectWallet()
       localStorage.setItem('walletAddress', aztecAddress)
       localStorage.setItem('walletMode', walletMode)
       localStorage.setItem('aztecNetwork', network)
-      // Очищаем флаг logout только при новом подключении
+      // Clear logout flag only on new connection
       localStorage.removeItem('privyLoggedOut')
     } catch (error) {
-      console.error('Ошибка подключения Aztec кошелька:', error)
+      console.error('Error connecting Aztec wallet:', error)
     }
   }
 
   const handleDisconnectWallet = () => {
-    // Устанавливаем флаг отключения для Privy кошельков
+    // Set disconnect flag for Privy wallets
     if (walletMode === 'privy') {
       localStorage.setItem('privyLoggedOut', 'true')
     }
     
-    // Отключаем через контекст Aztec
+    // Disconnect through Aztec context
     disconnect()
     
     setPrivyError('')
@@ -72,7 +72,7 @@ export default function Home() {
     localStorage.removeItem('walletMode')
     localStorage.removeItem('aztecNetwork')
     
-    // Принудительно перезагружаем страницу чтобы полностью очистить состояние Privy
+    // Force page reload to fully clear Privy state
     if (walletMode === 'privy') {
       setTimeout(() => {
         window.location.reload()
@@ -84,9 +84,9 @@ export default function Home() {
     try {
       await switchNetwork(newNetwork)
       localStorage.setItem('aztecNetwork', newNetwork)
-      console.log(`Переключение на ${newNetwork}`)
+      console.log(`Switching to ${newNetwork}`)
     } catch (error) {
-      console.error('Ошибка переключения сети:', error)
+      console.error('Error switching network:', error)
     }
   }
 
@@ -96,15 +96,15 @@ export default function Home() {
   }
 
   const handleAuctionCreated = () => {
-    // Принудительно обновляем список аукционов
+    // Force refresh auction list
     setRefreshKey(prev => prev + 1)
-    console.log('Аукцион создан, обновляем список')
+    console.log('Auction created, refreshing list')
   }
 
   const handleBidPlaced = () => {
-    // Принудительно обновляем список аукционов после размещения ставки
+    // Force refresh auction list after placing bid
     setRefreshKey(prev => prev + 1)
-    console.log('Ставка размещена, обновляем список')
+    console.log('Bid placed, refreshing list')
   }
 
   if (!isConnected) {
@@ -112,21 +112,21 @@ export default function Home() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-4xl mx-auto px-4">
           <h1 className="text-4xl font-bold text-gray-900 mb-8">
-            Приватные Аукционы
+            Private Auctions
           </h1>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Добро пожаловать на платформу приватных аукционов, работающую на технологии Aztec Network. 
-            Здесь ваши ставки остаются полностью конфиденциальными до завершения торгов.
+            Welcome to the private auction platform powered by Aztec Network technology. 
+            Here your bids remain completely confidential until the auction ends.
           </p>
 
-          {/* Выбор сети Aztec */}
+          {/* Aztec Network Selection */}
           <NetworkSelector 
             currentNetwork={network}
             onNetworkChange={handleNetworkChange}
             disabled={false}
           />
 
-          {/* Выбор типа подключения */}
+          {/* Connection Type Selection */}
           <div className="mb-8 max-w-md mx-auto">
             <div className="flex rounded-lg border border-gray-300 overflow-hidden">
               <button
@@ -140,7 +140,7 @@ export default function Home() {
                     : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Privy (Реальные кошельки)
+                Privy (Real Wallets)
               </button>
               <button
                 onClick={() => {
@@ -153,12 +153,12 @@ export default function Home() {
                     : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Демо режим
+                Demo Mode
               </button>
             </div>
           </div>
 
-          {/* Компонент подключения */}
+          {/* Connection Component */}
           {walletMode === 'privy' ? (
             <div>
               <PrivyWalletConnectFull 
@@ -173,7 +173,7 @@ export default function Home() {
                     onClick={() => setWalletMode('demo')}
                     className="mt-2 text-xs underline"
                   >
-                    Переключиться на демо режим
+                    Switch to demo mode
                   </button>
                 </div>
               )}
@@ -185,18 +185,18 @@ export default function Home() {
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="card text-center">
               <div className="text-3xl mb-4">🔒</div>
-              <h3 className="text-lg font-semibold mb-2">Полная Приватность</h3>
-              <p className="text-gray-600">Ваши ставки зашифрованы и невидимы до окончания аукциона</p>
+              <h3 className="text-lg font-semibold mb-2">Complete Privacy</h3>
+              <p className="text-gray-600">Your bids are encrypted and invisible until the auction ends</p>
             </div>
             <div className="card text-center">
               <div className="text-3xl mb-4">⚡</div>
               <h3 className="text-lg font-semibold mb-2">Zero-Knowledge</h3>
-              <p className="text-gray-600">Использует передовые zk-доказательства для обеспечения безопасности</p>
+              <p className="text-gray-600">Uses advanced zk-proofs to ensure security</p>
             </div>
             <div className="card text-center">
               <div className="text-3xl mb-4">🏆</div>
-              <h3 className="text-lg font-semibold mb-2">Честные Торги</h3>
-              <p className="text-gray-600">Победитель определяется автоматически без возможности манипуляций</p>
+              <h3 className="text-lg font-semibold mb-2">Fair Trading</h3>
+              <p className="text-gray-600">Winner determined automatically without possibility of manipulation</p>
             </div>
           </div>
         </div>
@@ -215,21 +215,21 @@ export default function Home() {
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Статус сети */}
+        {/* Network Status */}
         <NetworkStatusAlert />
 
-        {/* Информация о текущей сети */}
+        {/* Current Network Information */}
         <div className="mb-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-blue-900">
-                  {network === 'testnet' ? '🌐 Aztec Alpha Testnet' : '🔧 Aztec Sandbox (демо)'}
+                  {network === 'testnet' ? '🌐 Aztec Alpha Testnet' : '🔧 Aztec Sandbox (demo)'}
                 </h3>
                 <p className="text-sm text-blue-700">
                   {network === 'testnet' 
-                    ? 'Подключен к реальной тестовой сети Aztec. Все операции происходят на блокчейне.'
-                    : 'Демо режим для тестирования. Данные сохраняются локально в браузере.'
+                    ? 'Connected to real Aztec testnet. All operations happen on the blockchain.'
+                    : 'Demo mode for testing. Data is stored locally in the browser.'
                   }
                 </p>
               </div>
@@ -242,7 +242,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Табы для фильтрации аукционов */}
+        {/* Tabs for auction filtering */}
         <div className="mb-8">
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
@@ -254,7 +254,7 @@ export default function Home() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Активные аукционы
+                Active Auctions
               </button>
               <button
                 onClick={() => setActiveTab('completed')}
@@ -264,13 +264,13 @@ export default function Home() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Завершенные аукционы
+                Completed Auctions
               </button>
             </nav>
           </div>
         </div>
 
-        {/* Список аукционов */}
+        {/* Auction List */}
         <AuctionList 
           key={refreshKey}
           onBidClick={handleBidClick} 
@@ -278,7 +278,7 @@ export default function Home() {
         />
       </main>
 
-      {/* Модальные окна */}
+      {/* Modal Windows */}
       <CreateAuctionModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}

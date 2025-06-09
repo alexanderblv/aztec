@@ -1,80 +1,80 @@
-# 🔒 Платформа Приватных Аукционов
+# 🔒 Private Auction Platform
 
-## Описание
+## Description
 
-Веб-платформа приватных аукционов, построенная на передовой технологии **Aztec Network**. Участники могут делать приватные ставки, которые остаются полностью зашифрованными до завершения аукциона. Только победитель раскрывается в конце торгов.
+A web platform for private auctions built on advanced **Aztec Network** technology. Participants can place private bids that remain fully encrypted until the auction ends. Only the winner is revealed at the end of trading.
 
-## 🌟 Особенности
+## 🌟 Features
 
-### 🔐 Полная Приватность
-- **Зашифрованные ставки**: Все ставки зашифрованы и невидимы даже создателю аукциона
-- **Zero-Knowledge доказательства**: Использует zk-SNARK для обеспечения честности без раскрытия данных
-- **Анонимность участников**: Личности участников остаются скрытыми до определения победителя
+### 🔐 Complete Privacy
+- **Encrypted bids**: All bids are encrypted and invisible even to the auction creator
+- **Zero-Knowledge proofs**: Uses zk-SNARKs to ensure fairness without revealing data
+- **Participant anonymity**: Participant identities remain hidden until winner determination
 
-### ⚡ Технологии
-- **Aztec Network**: Приватная L2 сеть на Ethereum
-- **Smart Contracts**: Написаны на Noir (язык Aztec)
-- **Next.js 14**: Современный React фреймворк
-- **TypeScript**: Типизированная разработка
-- **Tailwind CSS**: Утилитарные стили
+### ⚡ Technologies
+- **Aztec Network**: Private L2 network on Ethereum
+- **Smart Contracts**: Written in Noir (Aztec language)
+- **Next.js 14**: Modern React framework
+- **TypeScript**: Typed development
+- **Tailwind CSS**: Utility styles
 
-### 🏆 Честные Торги
-- **Автоматическое определение победителя**: Без возможности манипуляций
-- **Прозрачная публичная информация**: Описание предметов доступно всем
-- **Неизменяемые ставки**: После размещения ставку нельзя изменить
+### 🏆 Fair Trading
+- **Automatic winner determination**: Without possibility of manipulation
+- **Transparent public information**: Item descriptions available to all
+- **Immutable bids**: After placement, bids cannot be changed
 
-## 🚀 Быстрый Старт
+## 🚀 Quick Start
 
-### Предварительные требования
+### Prerequisites
 
 ```bash
-# Node.js 18+ и npm
+# Node.js 18+ and npm
 node --version
 npm --version
 
-# Aztec CLI (для работы с testnet)
+# Aztec CLI (for testnet work)
 bash -i <(curl -s https://install.aztec.network)
 aztec-up alpha-testnet
 ```
 
-### Установка
+### Installation
 
 ```bash
-# Клонирование репозитория
+# Clone repository
 git clone <your-repo-url>
 cd private-auction-platform
 
-# Установка зависимостей
+# Install dependencies
 npm install
 ```
 
-### 🌐 Работа с Aztec Testnet
+### 🌐 Working with Aztec Testnet
 
-Приложение поддерживает работу как с локальным Sandbox, так и с реальной тестовой сетью Aztec Alpha Testnet.
+The application supports working with both local Sandbox and real Aztec Alpha Testnet.
 
-#### Настройка для Testnet
+#### Testnet Setup
 
-1. **Установите Aztec CLI:**
+1. **Install Aztec CLI:**
 ```bash
-# Установка CLI
+# Install CLI
 bash -i <(curl -s https://install.aztec.network)
 
-# Установка версии testnet
+# Install testnet version
 aztec-up alpha-testnet
 ```
 
-2. **Создайте файл .env.local:**
+2. **Create .env.local file:**
 ```bash
-# Скопируйте конфигурацию testnet
+# Copy testnet configuration
 cp env.testnet .env.local
 ```
 
-3. **Запустите приложение с testnet:**
+3. **Run application with testnet:**
 ```bash
 npm run dev:testnet
 ```
 
-#### Переменные окружения для Testnet
+#### Environment Variables for Testnet
 
 ```bash
 # Aztec Testnet Configuration
@@ -82,44 +82,44 @@ AZTEC_PXE_URL=https://aztec-alpha-testnet-fullnode.zkv.xyz
 AZTEC_NODE_URL=https://aztec-alpha-testnet-fullnode.zkv.xyz
 NEXT_PUBLIC_AZTEC_PXE_URL=https://aztec-alpha-testnet-fullnode.zkv.xyz
 
-# Sponsored Fee Payment Contract (бесплатные транзакции)
+# Sponsored Fee Payment Contract (free transactions)
 SPONSORED_FPC_ADDRESS=0x1260a43ecf03e985727affbbe3e483e60b836ea821b6305bea1c53398b986047
 
-# Сеть
+# Network
 AZTEC_NETWORK=testnet
 ```
 
-#### Особенности Testnet
+#### Testnet Features
 
-- ✅ **Реальные zk-доказательства**: Полноценная работа с Aztec Network
-- ✅ **Бесплатные транзакции**: Используется sponsored fee contract
-- ✅ **Публичная сеть**: Доступна всем разработчикам
-- ⚠️ **Время ожидания**: Транзакции могут обрабатываться дольше
-- ⚠️ **Alpha версия**: Возможны сбои и обновления
+- ✅ **Real zk-proofs**: Full functionality with Aztec Network
+- ✅ **Free transactions**: Uses sponsored fee contract
+- ✅ **Public network**: Available to all developers
+- ⚠️ **Wait times**: Transactions may take longer to process
+- ⚠️ **Alpha version**: Possible failures and updates
 
-### 🏠 Работа с Local Sandbox
+### 🏠 Working with Local Sandbox
 
-Для локальной разработки:
+For local development:
 
 ```bash
-# Запуск Aztec Sandbox (в отдельном терминале)
+# Run Aztec Sandbox (in separate terminal)
 aztec-sandbox
 
-# Компиляция смарт-контрактов
+# Compile smart contracts
 npm run compile
 
-# Запуск веб-приложения
+# Run web application
 npm run dev
 ```
 
-Откройте [http://localhost:3000](http://localhost:3000) в браузере.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 📋 Архитектура
+## 📋 Architecture
 
-### Смарт-Контракт (`contracts/src/main.nr`)
+### Smart Contract (`contracts/src/main.nr`)
 ```noir
 contract PrivateAuction {
-    // Приватные ставки как зашифрованные ноты
+    // Private bids as encrypted notes
     struct BidNote {
         amount: Field,
         bidder: AztecAddress,
@@ -127,7 +127,7 @@ contract PrivateAuction {
         random: Field,
     }
     
-    // Публичная информация об аукционах
+    // Public auction information
     struct AuctionInfo {
         item_name: Field,
         description: Field,
@@ -140,72 +140,72 @@ contract PrivateAuction {
 }
 ```
 
-### Веб-Интерфейс
-- **Header**: Информация о кошельке и навигация
-- **AuctionList**: Отображение всех аукционов
-- **CreateAuctionModal**: Создание новых аукционов
-- **BidModal**: Размещение приватных ставок
-- **WalletConnect**: Подключение к Aztec
+### Web Interface
+- **Header**: Wallet information and navigation
+- **AuctionList**: Display of all auctions
+- **CreateAuctionModal**: Creating new auctions
+- **BidModal**: Placing private bids
+- **WalletConnect**: Connecting to Aztec
 
-## 🔧 Основные Функции
+## 🔧 Main Functions
 
-### Создание Аукциона
+### Creating an Auction
 ```typescript
-// Публичная функция - информация видна всем
+// Public function - information visible to all
 await contract.methods.create_auction(
-    itemName,     // Название предмета
-    description,  // Описание
-    duration,     // Продолжительность в часах
-    minBid       // Минимальная ставка
+    itemName,     // Item name
+    description,  // Description
+    duration,     // Duration in hours
+    minBid       // Minimum bid
 ).send()
 ```
 
-### Размещение Приватной Ставки
+### Placing a Private Bid
 ```typescript
-// Приватная функция - ставка зашифрована
+// Private function - bid is encrypted
 await contract.methods.place_bid(
-    auctionId,   // ID аукциона
-    amount       // Размер ставки (зашифрован)
+    auctionId,   // Auction ID
+    amount       // Bid amount (encrypted)
 ).send()
 ```
 
-### Завершение Аукциона
+### Finalizing an Auction
 ```typescript
-// Определение победителя через zk-доказательства
+// Determine winner through zk-proofs
 await contract.methods.finalize_auction(auctionId).send()
 ```
 
-## 🛡️ Безопасность
+## 🛡️ Security
 
-### Криптографические Гарантии
-- **Педерсен хеширование**: Для создания commitment'ов ставок
-- **zk-SNARK доказательства**: Для приватного сравнения ставок
-- **Nullifier'ы**: Предотвращение двойных трат
-- **Временные метки**: Защита от атак на время
+### Cryptographic Guarantees
+- **Pedersen hashing**: For creating bid commitments
+- **zk-SNARK proofs**: For private bid comparison
+- **Nullifiers**: Preventing double spending
+- **Timestamps**: Protection against timing attacks
 
-### Модель Угроз
-✅ **Защищено от**:
-- Просмотра чужих ставок
-- Манипуляций с результатами
-- Атак на доступность (через L2)
-- MEV атак (благодаря приватности)
+### Threat Model
+✅ **Protected from**:
+- Viewing others' bids
+- Result manipulation
+- Availability attacks (through L2)
+- MEV attacks (thanks to privacy)
 
-⚠️ **Ограничения**:
-- Требуется доверие к Aztec Sequencer
-- Зависимость от безопасности Ethereum L1
-- Возможные timing атаки (смягчены)
+⚠️ **Limitations**:
+- Requires trust in Aztec Sequencer
+- Dependence on Ethereum L1 security
+- Possible timing attacks (mitigated)
 
-## 🌐 Развертывание
+## 🌐 Deployment
 
-### Vercel (Рекомендуется)
+### Vercel (Recommended)
 ```bash
-# Установка Vercel CLI
+# Install Vercel CLI
 npm i -g vercel
 
-# Развертывание
+# Deploy
 vercel --prod
 
-# Настройка переменных окружения
+# Configure environment variables
 vercel env add AZTEC_PXE_URL
 ```
 
@@ -221,127 +221,127 @@ EXPOSE 3000
 CMD ["npm", "start"]
 ```
 
-## 🧪 Тестирование
+## 🧪 Testing
 
 ```bash
-# Тестирование смарт-контрактов
+# Test smart contracts
 npm run test
 
-# Проверка типов TypeScript
+# Check TypeScript types
 npm run type-check
 
-# Линтинг кода
+# Code linting
 npm run lint
 ```
 
-## 📖 Документация API
+## 📖 API Documentation
 
 ### Aztec Service Methods
 
 #### `createWallet(): Promise<string>`
-Создает новый Aztec кошелек
+Creates a new Aztec wallet
 
 #### `connectWallet(privateKey: string): Promise<string>`
-Подключается к существующему кошельку
+Connects to an existing wallet
 
 #### `createAuction(itemName, description, duration, minBid): Promise<number>`
-Создает новый аукцион
+Creates a new auction
 
 #### `placeBid(auctionId: number, amount: number): Promise<void>`
-Размещает приватную ставку
+Places a private bid
 
 #### `getAuctionInfo(auctionId: number): Promise<AuctionInfo>`
-Получает публичную информацию об аукционе
+Gets public auction information
 
 #### `getWinner(auctionId: number): Promise<Winner>`
-Получает информацию о победителе (после завершения)
+Gets winner information (after completion)
 
-## 🤝 Участие в Разработке
+## 🤝 Contributing
 
 ### Workflow
-1. Fork репозитория
-2. Создайте feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit изменения (`git commit -m 'Add amazing feature'`)
-4. Push в branch (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-### Стандарты Кода
-- ESLint + Prettier для JavaScript/TypeScript
-- Noir formatter для смарт-контрактов
-- Conventional Commits для сообщений
+### Code Standards
+- ESLint + Prettier for JavaScript/TypeScript
+- Noir formatter for smart contracts
+- Conventional Commits for messages
 
-## 🐛 Известные Проблемы
+## 🐛 Known Issues
 
-- [ ] Демо-режим с моковыми данными (требуется реальная интеграция с Aztec)
-- [ ] Отсутствует обработка сетевых ошибок
-- [ ] Нет персистентного хранения состояния
-- [ ] Требуется оптимизация производительности для больших аукционов
+- [ ] Demo mode with mock data (requires real Aztec integration)
+- [ ] Missing network error handling
+- [ ] No persistent state storage
+- [ ] Performance optimization needed for large auctions
 
-## 📄 Лицензия
+## 📄 License
 
-MIT License - см. [LICENSE](LICENSE) файл
+MIT License - see [LICENSE](LICENSE) file
 
-## 🔗 Полезные Ссылки
+## 🔗 Useful Links
 
 - [Aztec Documentation](https://docs.aztec.network/)
 - [Noir Language](https://noir-lang.org/)
 - [Aztec Sandbox](https://docs.aztec.network/dev_docs/getting_started/sandbox)
 - [Zero-Knowledge Proofs](https://ethereum.org/en/zero-knowledge-proofs/)
 
-## 📞 Поддержка
+## 📞 Support
 
-- 💬 [Discord сообщество](https://discord.gg/aztec)
+- 💬 [Discord community](https://discord.gg/aztec)
 - 🐛 [GitHub Issues](https://github.com/your-repo/issues)
 - 📧 Email: support@yourplatform.com
 
 ---
 
-**Сделано с ❤️ и технологией Aztec Network**
+**Made with ❤️ and Aztec Network technology**
 
 # 🎯 Private Auction Platform on Aztec
 
-Веб-платформа приватных аукционов, построенная на блокчейне Aztec Network с использованием технологий zero-knowledge proof.
+Web platform for private auctions built on Aztec Network blockchain using zero-knowledge proof technologies.
 
-## 🚨 ВАЖНО: Настройка подключения кошельков
+## 🚨 IMPORTANT: Wallet Connection Setup
 
-**Сейчас подключение кошельков работает в демо-режиме!** Для работы с настоящими кошельками через [Privy](https://www.privy.io/) выполните следующие шаги:
+**Currently wallet connection works in demo mode!** To work with real wallets via [Privy](https://www.privy.io/), follow these steps:
 
-### Шаг 1: Установите зависимости
+### Step 1: Install dependencies
 ```bash
 npm install --legacy-peer-deps
 ```
 
-### Шаг 2: Настройте Privy App ID
-1. Зарегистрируйтесь на [console.privy.io](https://console.privy.io/)
-2. Создайте новое приложение 
-3. Скопируйте App ID
-4. Создайте файл `.env.local` в корне проекта:
+### Step 2: Configure Privy App ID
+1. Register at [console.privy.io](https://console.privy.io/)
+2. Create a new application 
+3. Copy the App ID
+4. Create `.env.local` file in project root:
 ```env
-NEXT_PUBLIC_PRIVY_APP_ID=ваш_app_id_здесь
+NEXT_PUBLIC_PRIVY_APP_ID=your_app_id_here
 ```
 
-### Шаг 3: Перезапустите приложение
+### Step 3: Restart application
 ```bash
 npm run dev
 ```
 
-После этого вместо демо-версии у вас будет **настоящее** подключение кошельков с поддержкой:
-- 📧 Email и SMS входа
-- 👛 Внешних кошельков (MetaMask, WalletConnect)
-- 🔒 Встроенных безопасных кошельков Privy
-- 🌐 Google и социальных сетей
+After this, instead of the demo version you'll have **real** wallet connection with support for:
+- 📧 Email and SMS login
+- 👛 External wallets (MetaMask, WalletConnect)
+- 🔒 Built-in secure Privy wallets
+- 🌐 Google and social networks
 
-📚 **Подробные инструкции:** см. файлы `PRIVY_INTEGRATION.md` и `DEPENDENCY_FIX.md`
+📚 **Detailed instructions:** see files `PRIVY_INTEGRATION.md` and `DEPENDENCY_FIX.md`
 
 ---
 
-## ✨ Функции платформы
+## ✨ Platform Features
 
-## 🚨 ИСПРАВЛЕНО: Подключение к реальной Aztec Testnet
+## 🚨 FIXED: Connection to real Aztec Testnet
 
-Если при выборе "Alpha Testnet" приложение работало в режиме эмуляции, проблема исправлена! 
+If when selecting "Alpha Testnet" the application worked in emulation mode, the issue is fixed! 
 
-### 🚀 Быстрое решение:
+### 🚀 Quick solution:
 ```bash
 # Windows
 copy env.testnet .env.local
@@ -349,18 +349,18 @@ copy env.testnet .env.local
 # Linux/macOS  
 cp env.testnet .env.local
 
-# Перезапустите приложение
+# Restart application
 npm run dev
 ```
 
-### ✅ Как проверить:
-1. Выберите "Alpha Testnet" в интерфейсе
-2. В консоли браузера (F12) должно появиться:
+### ✅ How to verify:
+1. Select "Alpha Testnet" in the interface
+2. In browser console (F12) should appear:
    ```
-   Подключение к Aztec Testnet успешно
+   Connected to Aztec Testnet successfully
    PXE URL: https://aztec-alpha-testnet-fullnode.zkv.xyz
    ```
 
-📖 **Подробные инструкции:** см. файл `ИСПРАВЛЕНИЕ_TESTNET.md`
+📖 **Detailed instructions:** see file `ИСПРАВЛЕНИЕ_TESTNET.md`
 
 --- 

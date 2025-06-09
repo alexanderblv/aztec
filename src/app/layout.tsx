@@ -3,9 +3,9 @@ import { AztecProvider } from '@/lib/aztec-context'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Приватные Аукционы',
-  description: 'Платформа приватных аукционов на основе Aztec Network',
-  keywords: ['аукцион', 'приватность', 'блокчейн', 'Aztec', 'zk-доказательства'],
+  title: 'Private Auctions',
+  description: 'Private auction platform based on Aztec Network',
+  keywords: ['auction', 'privacy', 'blockchain', 'Aztec', 'zk-proofs'],
 }
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru">
+    <html lang="en">
       <body className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="min-h-screen">
           <AztecProvider>

@@ -34,7 +34,7 @@ export default function Header({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-gray-900">
-              🔒 Приватные Аукционы
+              🔒 Private Auctions
             </h1>
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
@@ -51,7 +51,7 @@ export default function Header({
               onClick={onCreateAuction}
               className="btn-primary"
             >
-              + Создать Аукцион
+              + Create Auction
             </button>
             
             <div className="flex items-center space-x-3">
@@ -71,7 +71,7 @@ export default function Header({
               onClick={onDisconnect}
               className="btn-secondary text-sm"
             >
-              Отключить
+              Disconnect
             </button>
           </div>
         </div>

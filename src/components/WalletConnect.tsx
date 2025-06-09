@@ -16,7 +16,7 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
   const [showPrivateKeyInput, setShowPrivateKeyInput] = useState(false)
   const [privateKey, setPrivateKey] = useState('')
 
-  // Используем единый контекст Aztec
+  // Using unified Aztec context
   const { service, connectWallet } = useAztec()
 
   const handleCreateWallet = async () => {
@@ -27,8 +27,8 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
       const address = await connectWallet()
       onWalletConnected(address)
     } catch (err: any) {
-      console.error('Ошибка создания кошелька:', err)
-      setError(err.message || 'Ошибка создания кошелька')
+      console.error('Error creating wallet:', err)
+      setError(err.message || 'Error creating wallet')
     } finally {
       setIsLoading(false)
     }
@@ -36,7 +36,7 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
 
   const handleConnectExisting = async () => {
     if (!privateKey.trim()) {
-      setError('Введите приватный ключ')
+      setError('Enter private key')
       return
     }
 
@@ -47,8 +47,8 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
       const address = await connectWallet(privateKey)
       onWalletConnected(address)
     } catch (err: any) {
-      console.error('Ошибка подключения кошелька:', err)
-      setError(err.message || 'Ошибка подключения кошелька')
+      console.error('Error connecting wallet:', err)
+      setError(err.message || 'Error connecting wallet')
     } finally {
       setIsLoading(false)
     }
@@ -57,7 +57,7 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
   return (
     <div className="card max-w-md mx-auto">
       <h2 className="text-2xl font-bold text-center mb-6">
-        Подключение к Aztec {network === 'testnet' ? 'Testnet' : 'Sandbox'}
+        Connect to Aztec {network === 'testnet' ? 'Testnet' : 'Sandbox'}
       </h2>
       
       {error && (
@@ -72,11 +72,11 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
           disabled={isLoading}
           className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Создается...' : 'Создать новый кошелек'}
+          {isLoading ? 'Creating...' : 'Create new wallet'}
         </button>
 
         <div className="text-center">
-          <span className="text-gray-500">или</span>
+          <span className="text-gray-500">or</span>
         </div>
 
         {!showPrivateKeyInput ? (
@@ -84,13 +84,13 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
             onClick={() => setShowPrivateKeyInput(true)}
             className="w-full btn-secondary"
           >
-            Подключить существующий кошелек
+            Connect existing wallet
           </button>
         ) : (
           <div className="space-y-3">
             <input
               type="password"
-              placeholder="Введите приватный ключ"
+              placeholder="Enter private key"
               value={privateKey}
               onChange={(e) => setPrivateKey(e.target.value)}
               className="input-field"
@@ -101,7 +101,7 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
                 disabled={isLoading || !privateKey.trim()}
                 className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Подключается...' : 'Подключить'}
+                {isLoading ? 'Connecting...' : 'Connect'}
               </button>
               <button
                 onClick={() => {
@@ -111,7 +111,7 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
                 }}
                 className="flex-1 btn-secondary"
               >
-                Отмена
+                Cancel
               </button>
             </div>
           </div>
@@ -121,11 +121,11 @@ export default function WalletConnect({ onWalletConnected, network }: WalletConn
       <div className="mt-6 text-sm text-gray-600 text-center">
         {network === 'testnet' ? (
           <p>
-            🌐 Подключение к реальной тестовой сети Aztec Alpha Testnet
+            🌐 Connecting to real Aztec Alpha Testnet
           </p>
         ) : (
           <p>
-            ⚠️ Это демо-версия. В продакшене используйте настоящую интеграцию с Aztec Sandbox.
+            ⚠️ This is a demo version. In production use real integration with Aztec Sandbox.
           </p>
         )}
       </div>

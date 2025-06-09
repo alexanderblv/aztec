@@ -13,11 +13,11 @@ export default function NetworkStatusAlert() {
             <div className="text-green-600 mr-3 text-xl">✅</div>
             <div>
               <h3 className="text-sm font-medium text-green-900 mb-1">
-                Sandbox режим активен
+                Sandbox mode active
               </h3>
               <p className="text-sm text-green-700">
-                Все функции работают полноценно. Данные сохраняются локально в браузере. 
-                Это полная имитация работы с Aztec Network.
+                All features work fully. Data is stored locally in the browser. 
+                This is a complete simulation of working with Aztec Network.
               </p>
             </div>
           </div>
@@ -26,7 +26,7 @@ export default function NetworkStatusAlert() {
     )
   }
 
-  // Для testnet режима
+  // For testnet mode
   const contractAddress = service?.getContractAddress?.()
   const isContractDeployed = !!contractAddress
 
@@ -37,27 +37,27 @@ export default function NetworkStatusAlert() {
           <div className="text-yellow-600 mr-3 text-xl">⚠️</div>
           <div className="flex-1">
             <h3 className="text-sm font-medium text-yellow-900 mb-2">
-              Aztec Alpha Testnet - {isContractDeployed ? 'Контракт развернут' : 'Требуется развертывание контракта'}
+              Aztec Alpha Testnet - {isContractDeployed ? 'Contract deployed' : 'Contract deployment required'}
             </h3>
             
             {!isContractDeployed ? (
               <div className="space-y-2">
                 <p className="text-sm text-yellow-800">
-                  <strong>Текущая проблема:</strong> Контракт приватных аукционов не развернут в Aztec Testnet. 
-                  Функции создания аукционов и размещения ставок недоступны.
+                  <strong>Current issue:</strong> Private auction contract not deployed in Aztec Testnet. 
+                  Auction creation and bid placement functions are unavailable.
                 </p>
                 
                 <div className="bg-yellow-100 rounded p-3">
-                  <p className="text-sm text-yellow-800 font-medium mb-2">🚀 Варианты решения:</p>
+                  <p className="text-sm text-yellow-800 font-medium mb-2">🚀 Solution options:</p>
                   <ul className="text-sm text-yellow-800 space-y-1">
-                    <li>• <strong>Быстро:</strong> Переключитесь на "Sandbox (демо)" для полного тестирования</li>
-                    <li>• <strong>Для разработки:</strong> Разверните контракт в testnet (требует Node.js)</li>
+                    <li>• <strong>Quick:</strong> Switch to "Sandbox (demo)" for full testing</li>
+                    <li>• <strong>For development:</strong> Deploy contract to testnet (requires Node.js)</li>
                   </ul>
                 </div>
               </div>
             ) : (
               <p className="text-sm text-yellow-800">
-                Контракт развернут по адресу: <code className="bg-yellow-100 px-1 rounded">{contractAddress}</code>
+                Contract deployed at: <code className="bg-yellow-100 px-1 rounded">{contractAddress}</code>
               </p>
             )}
           </div>

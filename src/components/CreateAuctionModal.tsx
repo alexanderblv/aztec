@@ -22,7 +22,7 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  // Используем единый контекст Aztec
+  // Using unified Aztec context
   const { service, isTestnet } = useAztec()
 
   const handleSubmit = async (e: any) => {
@@ -31,25 +31,25 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
     setError('')
 
     try {
-      // Валидация
+      // Validation
       if (!formData.itemName.trim()) {
-        throw new Error('Введите название предмета')
+        throw new Error('Enter item name')
       }
       if (!formData.description.trim()) {
-        throw new Error('Введите описание')
+        throw new Error('Enter description')
       }
       if (formData.minBid <= 0) {
-        throw new Error('Минимальная ставка должна быть больше 0')
+        throw new Error('Minimum bid must be greater than 0')
       }
       if (formData.durationHours <= 0) {
-        throw new Error('Продолжительность должна быть больше 0')
+        throw new Error('Duration must be greater than 0')
       }
 
       if (!service) {
-        throw new Error('Сервис не инициализирован')
+        throw new Error('Service not initialized')
       }
 
-      // Используем сервис из контекста
+      // Use service from context
       const auctionId = await service.createAuction(
         formData.itemName,
         formData.description,
@@ -57,10 +57,10 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
         formData.minBid
       )
       
-      console.log(`Аукцион создан с ID: ${auctionId}`)
+      console.log(`Auction created with ID: ${auctionId}`)
       setSuccess(true)
       
-      // Вызываем callback для обновления списка аукционов
+      // Call callback to update auction list
       if (onAuctionCreated) {
         onAuctionCreated()
       }
@@ -68,7 +68,7 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
       setTimeout(() => {
         setSuccess(false)
         onClose()
-        // Сбрасываем форму
+        // Reset form
         setFormData({
           itemName: '',
           description: '',
@@ -78,8 +78,8 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
       }, 2500)
       
     } catch (err: any) {
-      setError(err.message || 'Ошибка создания аукциона')
-      console.error('Ошибка создания аукциона:', err)
+      setError(err.message || 'Error creating auction')
+      console.error('Error creating auction:', err)
     } finally {
       setIsLoading(false)
     }
@@ -100,7 +100,7 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              🏛️ Создать Приватный Аукцион
+              🏛️ Create Private Auction
             </h2>
             <button
               onClick={onClose}
@@ -114,10 +114,10 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
             <div className="text-center py-8">
               <div className="text-6xl mb-4">🎉</div>
               <h3 className="text-xl font-semibold text-green-600 mb-2">
-                Аукцион успешно создан!
+                Auction successfully created!
               </h3>
               <p className="text-gray-600">
-                Ваш приватный аукцион развернут в сети {isTestnet ? 'Aztec Testnet' : 'Aztec Sandbox'}.
+                Your private auction is deployed in {isTestnet ? 'Aztec Testnet' : 'Aztec Sandbox'}.
               </p>
             </div>
           ) : (
@@ -131,14 +131,14 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Название предмета *
+                    Item Name *
                   </label>
                   <input
                     type="text"
                     value={formData.itemName}
                     onChange={(e) => handleChange('itemName', e.target.value)}
                     className="input-field"
-                    placeholder="Например: Редкая винтажная картина"
+                    placeholder="For example: Rare Vintage Painting"
                     disabled={isLoading}
                     required
                   />
@@ -146,14 +146,14 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Описание *
+                    Description *
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => handleChange('description', e.target.value)}
                     className="input-field"
                     rows={3}
-                    placeholder="Подробное описание предмета..."
+                    placeholder="Detailed description of the item..."
                     disabled={isLoading}
                     required
                   />
@@ -162,7 +162,7 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Продолжительность (часы) *
+                      Duration (hours) *
                     </label>
                     <input
                       type="number"
@@ -174,12 +174,12 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
                       disabled={isLoading}
                       required
                     />
-                    <p className="text-xs text-gray-500 mt-1">От 1 до 168 часов (7 дней)</p>
+                    <p className="text-xs text-gray-500 mt-1">From 1 to 168 hours (7 days)</p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Минимальная ставка (ETH) *
+                      Minimum Bid (ETH) *
                     </label>
                     <input
                       type="number"
@@ -196,13 +196,13 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
 
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h4 className="font-medium text-blue-900 mb-2 flex items-center">
-                    🔒 Особенности приватного аукциона
+                    🔒 Private Auction Features
                   </h4>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Все ставки полностью зашифрованы</li>
-                    <li>• Участники не видят ставки других</li>
-                    <li>• Победитель определяется автоматически</li>
-                    <li>• Используется технология zero-knowledge</li>
+                    <li>• All bids are fully encrypted</li>
+                    <li>• Participants cannot see other bids</li>
+                    <li>• Winner determined automatically</li>
+                    <li>• Uses zero-knowledge technology</li>
                   </ul>
                 </div>
 
@@ -211,10 +211,10 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
                     <div className="text-yellow-600 mr-2">💡</div>
                     <div>
                       <h4 className="font-medium text-yellow-900 mb-1">
-                        Текущая сеть
+                        Current Network
                       </h4>
                       <p className="text-sm text-yellow-800">
-                        Аукцион будет создан в сети: {isTestnet ? 'Aztec Alpha Testnet (реальная сеть)' : 'Aztec Sandbox (демо режим)'}
+                        Auction will be created on: {isTestnet ? 'Aztec Alpha Testnet (real network)' : 'Aztec Sandbox (demo mode)'}
                       </p>
                     </div>
                   </div>
@@ -227,14 +227,14 @@ export default function CreateAuctionModal({ isOpen, onClose, onAuctionCreated }
                     className="flex-1 btn-secondary"
                     disabled={isLoading}
                   >
-                    Отмена
+                    Cancel
                   </button>
                   <button
                     type="submit"
                     className="flex-1 btn-primary disabled:opacity-50"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Создается через Aztec...' : 'Создать Аукцион'}
+                    {isLoading ? 'Creating via Aztec...' : 'Create Auction'}
                   </button>
                 </div>
               </form>
