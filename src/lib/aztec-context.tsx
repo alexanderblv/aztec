@@ -36,7 +36,7 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
   const [isConnected, setIsConnected] = useState(false)
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
-  // Инициализируем сервис при изменении сети
+  // Initialize service when network changes
   useEffect(() => {
     const initializeService = async () => {
       try {
@@ -47,19 +47,19 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
             ? 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
             : 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
           await newService.initialize(testnetUrl)
-          console.log('🌐 Подключен к Aztec Testnet')
-          console.warn('⚠️ Контракт еще не развернут. Для размещения ставок необходимо скомпилировать и развернуть контракт или переключиться в демо режим.')
+          console.log('🌐 Connected to Aztec Testnet')
+          console.warn('⚠️ Contract not yet deployed. To place bids, you need to compile and deploy the contract or switch to demo mode.')
         } else {
           await newService.initialize()
-          console.log('🔧 Подключен к Aztec Sandbox (демо)')
+          console.log('🔧 Connected to Aztec Sandbox (demo)')
         }
         
         setService(newService)
       } catch (error) {
-        console.error('Ошибка инициализации Aztec сервиса:', error)
-        // В случае ошибки с testnet, падаем обратно на демо
+        console.error('Error initializing Aztec service:', error)
+        // In case of testnet error, fall back to demo
         if (network === 'testnet') {
-          console.log('⚠️ Переключение на демо режим из-за ошибки подключения к testnet')
+          console.log('⚠️ Switching to demo mode due to testnet connection error')
           try {
             await aztecDemoService.initialize()
             setService(aztecDemoService)
@@ -68,7 +68,7 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
               localStorage.setItem('aztecNetwork', 'sandbox')
             }
           } catch (demoError) {
-            console.error('Критическая ошибка: не удалось инициализировать даже демо сервис:', demoError)
+            console.error('Critical error: failed to initialize even demo service:', demoError)
           }
         }
       }
@@ -77,7 +77,7 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
     initializeService()
   }, [network])
 
-  // Восстанавливаем состояние при загрузке
+  // Restore state on load
   useEffect(() => {
     if (typeof window === 'undefined') return
     
@@ -97,9 +97,9 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
   const switchNetwork = async (newNetwork: 'sandbox' | 'testnet') => {
     if (newNetwork === network) return
     
-    console.log(`Переключение сети: ${network} → ${newNetwork}`)
+    console.log(`Switching network: ${network} → ${newNetwork}`)
     
-    // Отключаем текущий кошелек
+    // Disconnect current wallet
     if (isConnected) {
       disconnect()
     }
@@ -112,7 +112,7 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
 
   const connectWallet = async (privateKey?: string): Promise<string> => {
     if (!service) {
-      throw new Error('Сервис не инициализирован')
+      throw new Error('Service not initialized')
     }
 
     try {
@@ -134,7 +134,7 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
       
       return address
     } catch (error) {
-      console.error('Ошибка подключения кошелька:', error)
+      console.error('Error connecting wallet:', error)
       throw error
     }
   }

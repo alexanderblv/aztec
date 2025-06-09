@@ -7,13 +7,13 @@ interface PrivyProvidersProps {
 }
 
 export default function PrivyProviders({ children }: PrivyProvidersProps) {
-  // Проверяем наличие App ID
+  // Check for App ID
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
   
-  // Проверяем, установлены ли зависимости Privy
+  // Check if Privy dependencies are installed
   let hasPrivyDeps = false
   try {
-    // Пытаемся импортировать Privy
+    // Try to import Privy
     require('@privy-io/react-auth')
     hasPrivyDeps = true
   } catch (e) {
@@ -26,11 +26,11 @@ export default function PrivyProviders({ children }: PrivyProvidersProps) {
         <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg border border-yellow-200">
           <div className="text-yellow-600 text-4xl text-center mb-4">⚠️</div>
           <h2 className="text-xl font-bold text-yellow-800 text-center mb-4">
-            Требуется установка зависимостей Privy
+            Privy Dependencies Installation Required
           </h2>
           <div className="space-y-4 text-sm">
             <p className="text-yellow-700">
-              Для работы с кошельками необходимо установить зависимости Privy:
+              To work with wallets, you need to install Privy dependencies:
             </p>
             
             <div className="bg-gray-100 p-3 rounded border">
@@ -40,20 +40,20 @@ export default function PrivyProviders({ children }: PrivyProvidersProps) {
             </div>
             
             <p className="text-yellow-700 text-xs">
-              После установки зависимостей также понадобится настроить App ID:
+              After installing dependencies, you'll also need to configure the App ID:
             </p>
             
             <ol className="list-decimal list-inside space-y-2 text-yellow-600 text-xs">
-              <li>Зарегистрируйтесь на <a href="https://console.privy.io/" target="_blank" className="underline font-medium">console.privy.io</a></li>
-              <li>Создайте новое приложение</li>
-              <li>Скопируйте App ID</li>
-              <li>Создайте файл <code className="bg-yellow-100 px-1 rounded">.env.local</code></li>
-              <li>Добавьте: <code className="bg-yellow-100 px-1 rounded">NEXT_PUBLIC_PRIVY_APP_ID=ваш_app_id</code></li>
+              <li>Register at <a href="https://console.privy.io/" target="_blank" className="underline font-medium">console.privy.io</a></li>
+              <li>Create a new application</li>
+              <li>Copy the App ID</li>
+              <li>Create a <code className="bg-yellow-100 px-1 rounded">.env.local</code> file</li>
+              <li>Add: <code className="bg-yellow-100 px-1 rounded">NEXT_PUBLIC_PRIVY_APP_ID=your_app_id</code></li>
             </ol>
             
             <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
               <p className="text-blue-800 text-xs">
-                📚 Подробная инструкция в файлах <code>PRIVY_INTEGRATION.md</code> и <code>DEPENDENCY_FIX.md</code>
+                📚 Detailed instructions in <code>PRIVY_INTEGRATION.md</code> and <code>DEPENDENCY_FIX.md</code> files
               </p>
             </div>
           </div>
@@ -68,18 +68,18 @@ export default function PrivyProviders({ children }: PrivyProvidersProps) {
         <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg border border-red-200">
           <div className="text-red-600 text-4xl text-center mb-4">🔑</div>
           <h2 className="text-xl font-bold text-red-800 text-center mb-4">
-            Требуется настройка Privy App ID
+            Privy App ID Configuration Required
           </h2>
           <div className="space-y-4 text-sm">
             <p className="text-red-700">
-              Зависимости установлены, но необходимо настроить App ID:
+              Dependencies are installed, but App ID needs to be configured:
             </p>
             <ol className="list-decimal list-inside space-y-2 text-red-600">
-              <li>Зарегистрируйтесь на <a href="https://console.privy.io/" target="_blank" className="underline font-medium">console.privy.io</a></li>
-              <li>Создайте новое приложение</li>
-              <li>Скопируйте App ID</li>
-              <li>Создайте файл <code className="bg-red-100 px-1 rounded">.env.local</code></li>
-              <li>Добавьте: <code className="bg-red-100 px-1 rounded text-xs">NEXT_PUBLIC_PRIVY_APP_ID=ваш_app_id</code></li>
+              <li>Register at <a href="https://console.privy.io/" target="_blank" className="underline font-medium">console.privy.io</a></li>
+              <li>Create a new application</li>
+              <li>Copy the App ID</li>
+              <li>Create a <code className="bg-red-100 px-1 rounded">.env.local</code> file</li>
+              <li>Add: <code className="bg-red-100 px-1 rounded text-xs">NEXT_PUBLIC_PRIVY_APP_ID=your_app_id</code></li>
             </ol>
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function PrivyProviders({ children }: PrivyProvidersProps) {
     )
   }
 
-  // Если зависимости установлены и App ID настроен, используем полную интеграцию
+  // If dependencies are installed and App ID is configured, use full integration
   try {
     const { PrivyProvider } = require('@privy-io/react-auth')
     const { WagmiProvider } = require('@privy-io/wagmi')
@@ -113,8 +113,8 @@ export default function PrivyProviders({ children }: PrivyProvidersProps) {
         appearance: {
           theme: 'light',
           accentColor: '#3B82F6',
-          landingHeader: 'Добро пожаловать в Private Auction',
-          loginMessage: 'Войдите для участия в приватных аукционах',
+          landingHeader: 'Welcome to Private Auction',
+          loginMessage: 'Login to participate in private auctions',
         },
         supportedChains: [mainnet, polygon, sepolia],
         embeddedWallets: {
@@ -127,16 +127,16 @@ export default function PrivyProviders({ children }: PrivyProvidersProps) {
       React.createElement(WagmiProvider, { config: config }, children)
     ))
   } catch (e) {
-    console.error('Ошибка инициализации Privy:', e)
+    console.error('Error initializing Privy:', e)
     return (
       <div className="min-h-screen flex items-center justify-center bg-red-50">
         <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg border border-red-200">
           <div className="text-red-600 text-4xl text-center mb-4">❌</div>
           <h2 className="text-xl font-bold text-red-800 text-center mb-4">
-            Ошибка инициализации Privy
+            Privy Initialization Error
           </h2>
           <p className="text-red-700 text-sm text-center">
-            Проверьте конфигурацию и зависимости
+            Check configuration and dependencies
           </p>
         </div>
       </div>

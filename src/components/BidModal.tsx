@@ -142,7 +142,7 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
       // Handle specific errors
       if (errorMessage.includes('Контракт не подключен') || errorMessage.includes('compiled contract')) {
         errorMessage = 'Aztec contract not yet deployed. Switch to demo mode (Sandbox) to test functionality.'
-      } else if (errorMessage.includes('Кошелек не подключен')) {
+      } else if (errorMessage.includes('Wallet not connected') || errorMessage.includes('Кошелек не подключен')) {
         errorMessage = 'Please connect wallet in the panel on the right'
       }
       

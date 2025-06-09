@@ -8,71 +8,63 @@ interface PrivyWalletConnectFullProps {
   onLogoutComplete?: () => void
 }
 
-// Компонент для непосредственного использования Privy хуков
+// Separate component to use Privy hooks
 function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: PrivyWalletConnectFullProps) {
-  const { usePrivy, useWallets } = require('@privy-io/react-auth')
-  
-  const { 
-    ready, 
-    authenticated, 
-    user, 
-    login, 
-    logout 
-  } = usePrivy()
-  
-  const { wallets } = useWallets()
-  
-  // Отслеживаем состояние logout
-  const [hasLoggedOut, setHasLoggedOut] = useState(false)
+  const { ready, authenticated, user, wallets, login, logout } = require('@privy-io/react-auth')
+  const [hasLoggedOut, setHasLoggedOut] = useState<boolean>(false)
 
-  // Проверяем флаг logout при инициализации
+  const { useState, useEffect } = require('react')
+
+  // Check if user manually logged out
   useEffect(() => {
-    const privyLoggedOut = localStorage.getItem('privyLoggedOut')
-    if (privyLoggedOut === 'true') {
-      setHasLoggedOut(true)
+    if (typeof window !== 'undefined') {
+      const loggedOut = localStorage.getItem('privyLoggedOut')
+      if (loggedOut === 'true') {
+        setHasLoggedOut(true)
+      }
     }
   }, [])
 
+  // Effect to handle authentication state
   useEffect(() => {
-    // Подключаем только если пользователь не выходил явно
-    if (authenticated && user && wallets.length > 0 && !hasLoggedOut) {
-      const wallet = wallets[0]
-      onWalletConnected(wallet.address)
-    } else if (authenticated && hasLoggedOut) {
-      // Если пользователь выходил, но Privy снова авторизовал (из-за расширения) - принудительно выходим
-      logout().catch(console.error)
+    if (ready && authenticated && !hasLoggedOut && wallets.length > 0) {
+      const address = wallets[0].address
+      onWalletConnected(address)
     }
-  }, [authenticated, user, wallets, onWalletConnected, hasLoggedOut, logout])
+  }, [ready, authenticated, wallets, hasLoggedOut, onWalletConnected])
+
+  // Effect to handle logout
+  useEffect(() => {
+    if (ready && !authenticated && hasLoggedOut) {
+      onLogoutComplete?.()
+    }
+  }, [ready, authenticated, hasLoggedOut, onLogoutComplete])
 
   const handleLogout = async () => {
     try {
-      // Устанавливаем флаг logout сразу в начале для быстрого скрытия UI
       setHasLoggedOut(true)
       localStorage.setItem('privyLoggedOut', 'true')
       
-      // Сразу вызываем callback отключения
+      // Clear wallet state first
       onLogoutComplete?.()
       
-      // Выполняем logout в Privy
+      // Then perform Privy logout
       await logout()
-      
     } catch (error) {
-      console.error('Ошибка при отключении:', error)
-      // В случае ошибки все равно считаем что отключились
-      onLogoutComplete?.()
+      console.error('Error during logout:', error)
     }
   }
 
   const handleLogin = async () => {
     try {
-      // Очищаем флаг logout перед входом
+      // Clear logout flag
       setHasLoggedOut(false)
       localStorage.removeItem('privyLoggedOut')
       
-      // Выполняем вход
+      // Perform login
       await login()
     } catch (error) {
-      console.error('Ошибка при входе:', error)
+      console.error('Error during login:', error)
     }
   }
 
@@ -81,7 +73,7 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
       <div className="card max-w-md mx-auto">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Загрузка...</p>
+          <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>
     )
@@ -92,9 +84,9 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
       <div className="card max-w-md mx-auto">
         <div className="text-center">
           <div className="text-green-600 text-4xl mb-4">✅</div>
-          <h2 className="text-xl font-semibold mb-2">Кошелек подключен</h2>
+          <h2 className="text-xl font-semibold mb-2">Wallet Connected</h2>
           <p className="text-gray-600 mb-4">
-            {user?.email?.address || user?.phone?.number || 'Пользователь авторизован'}
+            {user?.email?.address || user?.phone?.number || 'User authenticated'}
           </p>
           {wallets.length > 0 && (
             <p className="text-sm text-gray-500 mb-4 font-mono">
@@ -105,7 +97,7 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
             onClick={handleLogout}
             className="btn-secondary"
           >
-            Отключить
+            Disconnect
           </button>
         </div>
       </div>
@@ -114,10 +106,10 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
 
   return (
     <div className="card max-w-md mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-6">Подключение через Privy</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">Connect via Privy</h2>
       
       <p className="text-gray-600 text-center mb-6">
-        Войдите любым удобным способом. Privy автоматически создаст безопасный кошелек.
+        Login with any convenient method. Privy will automatically create a secure wallet.
       </p>
 
       <button
@@ -125,23 +117,23 @@ function PrivyWalletContent({ onWalletConnected, onError, onLogoutComplete }: Pr
         className="w-full btn-primary flex items-center justify-center space-x-2"
       >
         <span>🔐</span>
-        <span>Войти</span>
+        <span>Login</span>
       </button>
 
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h3 className="font-semibold text-blue-900 mb-2">Поддерживаемые методы входа:</h3>
+        <h3 className="font-semibold text-blue-900 mb-2">Supported login methods:</h3>
         <ul className="text-sm text-blue-800 space-y-1">
           <li>• 📧 Email</li>
           <li>• 📱 SMS</li>
           <li>• 🌐 Google</li>
-          <li>• 👛 Внешние кошельки (MetaMask, WalletConnect)</li>
-          <li>• 🔒 Встроенные кошельки Privy</li>
+          <li>• 👛 External wallets (MetaMask, WalletConnect)</li>
+          <li>• 🔒 Built-in Privy wallets</li>
         </ul>
       </div>
 
       <div className="mt-4 text-xs text-gray-500 text-center">
         <p>
-          🔒 Безопасность обеспечивается технологией TEE и распределенным шардингом ключей
+          🔒 Security provided by TEE technology and distributed key sharding
         </p>
       </div>
     </div>
@@ -153,13 +145,13 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError, onL
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Проверяем наличие Privy
+    // Check for Privy availability
     try {
       require('@privy-io/react-auth')
       setHasPrivyDeps(true)
     } catch (e) {
       setHasPrivyDeps(false)
-      onError?.('Privy не настроен. Используйте демо режим.')
+      onError?.('Privy not configured. Use demo mode.')
     } finally {
       setIsLoading(false)
     }
@@ -170,7 +162,7 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError, onL
       <div className="card max-w-md mx-auto">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Проверка настроек...</p>
+          <p className="mt-2 text-gray-600">Checking configuration...</p>
         </div>
       </div>
     )
@@ -182,23 +174,23 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError, onL
         <div className="text-center">
           <div className="text-yellow-600 text-4xl mb-4">⚠️</div>
           <h2 className="text-xl font-bold text-yellow-800 mb-4">
-            Privy не настроен
+            Privy not configured
           </h2>
           <p className="text-yellow-700 text-sm mb-4">
-            Зависимости не установлены или не настроен App ID
+            Dependencies not installed or App ID not configured
           </p>
           <button 
-            onClick={() => onError?.('Переключитесь на демо режим')}
+            onClick={() => onError?.('Switch to demo mode')}
             className="btn-secondary"
           >
-            Использовать демо режим
+            Use demo mode
           </button>
         </div>
       </div>
     )
   }
 
-  // Создаем провайдер только когда зависимости установлены
+  // Create provider only when dependencies are installed
   try {
     const React = require('react')
     const { PrivyProvider } = require('@privy-io/react-auth')
@@ -228,8 +220,8 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError, onL
         appearance: {
           theme: 'light',
           accentColor: '#3B82F6',
-          landingHeader: 'Добро пожаловать в Private Auction',
-          loginMessage: 'Войдите для участия в приватных аукционах',
+          landingHeader: 'Welcome to Private Auction',
+          loginMessage: 'Login to participate in private auctions',
         },
         supportedChains: [mainnet, polygon, sepolia],
         embeddedWallets: {
@@ -249,17 +241,17 @@ export default function PrivyWalletConnectFull({ onWalletConnected, onError, onL
     ))
   } catch (e) {
     // Fix TypeScript error by properly handling unknown type
-    const errorMessage = e instanceof Error ? e.message : 'Неизвестная ошибка'
-    onError?.('Ошибка инициализации Privy: ' + errorMessage)
+    const errorMessage = e instanceof Error ? e.message : 'Unknown error'
+    onError?.('Error initializing Privy: ' + errorMessage)
     return (
       <div className="card max-w-md mx-auto">
         <div className="text-center">
           <div className="text-red-600 text-4xl mb-4">❌</div>
           <h2 className="text-xl font-bold text-red-800 mb-4">
-            Ошибка Privy
+            Privy Error
           </h2>
           <p className="text-red-700 text-sm">
-            Проверьте конфигурацию
+            Check configuration
           </p>
         </div>
       </div>
