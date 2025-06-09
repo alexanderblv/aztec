@@ -10,12 +10,17 @@ import PrivyWalletConnectFull from '@/components/PrivyWalletConnectFull'
 import WalletConnect from '@/components/WalletConnect'
 import NetworkSelector from '@/components/NetworkSelector'
 import NetworkStatusAlert from '@/components/NetworkStatusAlert'
+import ModeSelector, { AppMode } from '@/components/ModeSelector'
+import ModeIndicator from '@/components/ModeIndicator'
+import ModeToggleModal from '@/components/ModeToggleModal'
 
 export default function Home() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isBidModalOpen, setIsBidModalOpen] = useState(false)
+  const [isModeToggleModalOpen, setIsModeToggleModalOpen] = useState(false)
   const [selectedAuctionId, setSelectedAuctionId] = useState<number | null>(null)
-  const [walletMode, setWalletMode] = useState<'privy' | 'demo'>('privy')
+  const [appMode, setAppMode] = useState<AppMode>('demo')
+  const [walletMode, setWalletMode] = useState<'privy' | 'demo'>('demo')
   const [privyError, setPrivyError] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   const [refreshKey, setRefreshKey] = useState(0)
@@ -30,6 +35,11 @@ export default function Home() {
     disconnect 
   } = useAztec()
 
+  // Sync app mode with wallet mode
+  useEffect(() => {
+    setAppMode(walletMode === 'demo' ? 'demo' : 'real')
+  }, [walletMode])
+
   useEffect(() => {
     // Check wallet connection state on load
     const savedMode = localStorage.getItem('walletMode') as 'privy' | 'demo'
@@ -38,11 +48,31 @@ export default function Home() {
     if (savedMode === 'demo') {
       // For demo mode always restore state
       setWalletMode(savedMode)
+      setAppMode('demo')
     } else if (savedMode === 'privy' && privyLoggedOut !== 'true') {
       // For Privy restore only if user wasn't explicitly disconnected
       setWalletMode(savedMode || 'privy')
+      setAppMode('real')
     }
   }, [])
+
+  const handleModeChange = async (newMode: AppMode) => {
+    const newWalletMode = newMode === 'demo' ? 'demo' : 'privy'
+    
+    // Disconnect current wallet if connected
+    if (isConnected) {
+      handleDisconnectWallet()
+    }
+    
+    setAppMode(newMode)
+    setWalletMode(newWalletMode)
+    setPrivyError('')
+    
+    // Clear any error states
+    localStorage.removeItem('privyLoggedOut')
+    
+    console.log(`Mode switched to: ${newMode}`)
+  }
 
   const handleWalletConnected = async (address: string) => {
     try {
@@ -119,44 +149,23 @@ export default function Home() {
             Here your bids remain completely confidential until the auction ends.
           </p>
 
-          {/* Aztec Network Selection */}
-          <NetworkSelector 
-            currentNetwork={network}
-            onNetworkChange={handleNetworkChange}
-            disabled={false}
+          {/* Mode Selection */}
+          <ModeSelector 
+            currentMode={appMode}
+            onModeChange={handleModeChange}
+            className="mb-8"
           />
 
-          {/* Connection Type Selection */}
-          <div className="mb-8 max-w-md mx-auto">
-            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
-              <button
-                onClick={() => {
-                  setWalletMode('privy')
-                  setPrivyError('')
-                }}
-                className={`flex-1 py-2 px-4 text-sm font-medium ${
-                  walletMode === 'privy'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                Privy (Real Wallets)
-              </button>
-              <button
-                onClick={() => {
-                  setWalletMode('demo')
-                  setPrivyError('')
-                }}
-                className={`flex-1 py-2 px-4 text-sm font-medium ${
-                  walletMode === 'demo'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                Demo Mode
-              </button>
+          {/* Aztec Network Selection - only show for real mode */}
+          {appMode === 'real' && (
+            <div className="mb-8">
+              <NetworkSelector 
+                currentNetwork={network}
+                onNetworkChange={handleNetworkChange}
+                disabled={false}
+              />
             </div>
-          </div>
+          )}
 
           {/* Connection Component */}
           {walletMode === 'privy' ? (
@@ -170,7 +179,7 @@ export default function Home() {
                 <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded max-w-md mx-auto">
                   <p className="text-sm">{privyError}</p>
                   <button 
-                    onClick={() => setWalletMode('demo')}
+                    onClick={() => handleModeChange('demo')}
                     className="mt-2 text-xs underline"
                   >
                     Switch to demo mode
@@ -212,32 +221,56 @@ export default function Home() {
         onCreateAuction={() => setIsCreateModalOpen(true)}
         walletMode={walletMode}
         network={network}
+        appMode={appMode}
+        onModeChange={handleModeChange}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Network Status */}
         <NetworkStatusAlert />
 
-        {/* Current Network Information */}
+        {/* Current Mode and Network Information */}
         <div className="mb-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className={`border rounded-lg p-4 ${
+            appMode === 'demo' 
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-blue-50 border-blue-200'
+          }`}>
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium text-blue-900">
-                  {network === 'testnet' ? '🌐 Aztec Alpha Testnet' : '🔧 Aztec Sandbox (demo)'}
-                </h3>
-                <p className="text-sm text-blue-700">
-                  {network === 'testnet' 
-                    ? 'Connected to real Aztec testnet. All operations happen on the blockchain.'
-                    : 'Demo mode for testing. Data is stored locally in the browser.'
-                  }
-                </p>
+              <div className="flex items-center gap-4">
+                <ModeIndicator 
+                  mode={appMode}
+                  network={network}
+                  onClick={() => setIsModeToggleModalOpen(true)}
+                />
+                <div>
+                  <h3 className={`text-sm font-medium ${
+                    appMode === 'demo' ? 'text-green-900' : 'text-blue-900'
+                  }`}>
+                    {appMode === 'demo' 
+                      ? '🎮 Демо режим - Симуляция работы'
+                      : `🌐 Реальный режим - ${network === 'testnet' ? 'Aztec Alpha Testnet' : 'Aztec Sandbox'}`
+                    }
+                  </h3>
+                  <p className={`text-sm ${
+                    appMode === 'demo' ? 'text-green-700' : 'text-blue-700'
+                  }`}>
+                    {appMode === 'demo'
+                      ? 'Все операции имитируются. Данные хранятся локально в браузере.'
+                      : network === 'testnet' 
+                        ? 'Подключено к настоящей тестовой сети Aztec. Все операции происходят в блокчейне.'
+                        : 'Подключено к локальному Aztec Sandbox для разработки.'
+                    }
+                  </p>
+                </div>
               </div>
-              <NetworkSelector 
-                currentNetwork={network}
-                onNetworkChange={handleNetworkChange}
-                disabled={false}
-              />
+              {appMode === 'real' && (
+                <NetworkSelector 
+                  currentNetwork={network}
+                  onNetworkChange={handleNetworkChange}
+                  disabled={false}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -292,6 +325,16 @@ export default function Home() {
           setIsBidModalOpen(false)
           setSelectedAuctionId(null)
         }}
+        onBidPlaced={handleBidPlaced}
+      />
+
+      {/* Mode Toggle Modal */}
+      <ModeToggleModal
+        isOpen={isModeToggleModalOpen}
+        currentMode={appMode}
+        network={network}
+        onClose={() => setIsModeToggleModalOpen(false)}
+        onModeChange={handleModeChange}
       />
     </div>
   )

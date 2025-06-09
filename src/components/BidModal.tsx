@@ -9,6 +9,7 @@ interface BidModalProps {
   isOpen: boolean
   auctionId: number | null
   onClose: () => void
+  onBidPlaced?: () => void
 }
 
 interface AuctionInfo {
@@ -18,7 +19,7 @@ interface AuctionInfo {
   endTime: number
 }
 
-export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) {
+export default function BidModal({ isOpen, auctionId, onClose, onBidPlaced }: BidModalProps) {
   const [bidAmount, setBidAmount] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -128,6 +129,11 @@ export default function BidModal({ isOpen, auctionId, onClose }: BidModalProps) 
         
         setSuccess(true)
         console.log(`Private bid ${amount} ETH sent for auction ${auctionId}`)
+        
+        // Notify parent component about successful bid
+        if (onBidPlaced) {
+          onBidPlaced()
+        }
         
         setTimeout(() => {
           setSuccess(false)

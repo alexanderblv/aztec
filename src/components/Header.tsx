@@ -1,11 +1,15 @@
 'use client'
 
+import ModeIndicator, { AppMode } from './ModeIndicator'
+
 interface HeaderProps {
   walletAddress: string
   onDisconnect: () => void
   onCreateAuction: () => void
   walletMode?: 'privy' | 'demo'
   network?: 'sandbox' | 'testnet'
+  appMode?: AppMode
+  onModeChange?: (mode: AppMode) => void
 }
 
 export default function Header({ 
@@ -13,7 +17,9 @@ export default function Header({
   onDisconnect, 
   onCreateAuction,
   walletMode = 'demo',
-  network = 'sandbox'
+  network = 'sandbox',
+  appMode = 'demo',
+  onModeChange
 }: HeaderProps) {
   const formatAddress = (address: string) => {
     if (!address) return ''
@@ -24,8 +30,11 @@ export default function Header({
     return network === 'testnet' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
   }
 
-  const getWalletModeColor = () => {
-    return walletMode === 'privy' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+  const handleModeToggle = () => {
+    if (onModeChange) {
+      const newMode: AppMode = appMode === 'demo' ? 'real' : 'demo'
+      onModeChange(newMode)
+    }
   }
 
   return (
@@ -40,13 +49,23 @@ export default function Header({
               <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                 Powered by Aztec
               </span>
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${getNetworkColor()}`}>
-                {network === 'testnet' ? 'Testnet' : 'Sandbox'}
-              </span>
+              {appMode === 'real' && (
+                <span className={`text-xs px-2 py-1 rounded-full font-medium ${getNetworkColor()}`}>
+                  {network === 'testnet' ? 'Testnet' : 'Sandbox'}
+                </span>
+              )}
             </div>
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Mode Indicator */}
+            <ModeIndicator 
+              mode={appMode}
+              network={network}
+              onClick={onModeChange ? handleModeToggle : undefined}
+              className="hidden sm:flex"
+            />
+
             <button
               onClick={onCreateAuction}
               className="btn-primary"
@@ -55,12 +74,14 @@ export default function Header({
             </button>
             
             <div className="flex items-center space-x-3">
-              <div className={`text-xs px-2 py-1 rounded-full font-medium ${getWalletModeColor()}`}>
-                {walletMode === 'privy' ? 'Privy' : 'Demo'}
-              </div>
-              
               <div className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-lg">
-                <div className={`w-2 h-2 rounded-full ${network === 'testnet' ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                <div className={`w-2 h-2 rounded-full ${
+                  appMode === 'demo' 
+                    ? 'bg-green-500' 
+                    : network === 'testnet' 
+                      ? 'bg-blue-500' 
+                      : 'bg-gray-500'
+                }`}></div>
                 <span className="text-sm font-medium text-gray-700">
                   {formatAddress(walletAddress)}
                 </span>
@@ -74,6 +95,15 @@ export default function Header({
               Disconnect
             </button>
           </div>
+        </div>
+
+        {/* Mobile Mode Indicator */}
+        <div className="sm:hidden mt-3 flex justify-center">
+          <ModeIndicator 
+            mode={appMode}
+            network={network}
+            onClick={onModeChange ? handleModeToggle : undefined}
+          />
         </div>
       </div>
     </header>
