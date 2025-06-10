@@ -133,108 +133,62 @@ export default function Home() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          {/* Mesh gradient background */}
-          <div className="absolute inset-0 mesh-gradient opacity-50"></div>
-          
-          {/* Floating orbs */}
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-indigo-400/30 to-purple-600/30 rounded-full blur-3xl floating-animation"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-purple-400/30 to-pink-600/30 rounded-full blur-3xl floating-animation" style={{animationDelay: '3s'}}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-full blur-2xl pulse-glow"></div>
-          
-          {/* Animated particles */}
-          <div className="particle"></div>
-          <div className="particle"></div>
-          <div className="particle"></div>
-          <div className="particle"></div>
-          <div className="particle"></div>
-          <div className="particle"></div>
-        </div>
-
-        <div className="text-center max-w-6xl mx-auto px-6 relative z-10">
-          {/* Hero Title */}
-          <div className="mb-8">
-            <h1 className="hero-title mb-6 animate-fade-in">
-              Private Auctions
-            </h1>
-            <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 mx-auto rounded-full"></div>
-          </div>
-          
-          {/* Hero Subtitle */}
-          <p className="hero-subtitle mb-12 max-w-3xl mx-auto animate-fade-in" style={{animationDelay: '0.2s'}}>
-            Добро пожаловать на платформу приватных аукционов на основе технологии Aztec Network. 
-            <br />
-            <span className="gradient-text">Ваши ставки остаются полностью конфиденциальными до завершения аукциона.</span>
+      <div className="min-h-screen flex items-center justify-center py-8">
+        <div className="text-center max-w-3xl mx-auto px-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Private Auctions
+          </h1>
+          <p className="text-base md:text-lg text-gray-600 mb-6 max-w-xl mx-auto">
+            Private auction platform powered by Aztec Network. Your bids remain confidential until auction ends.
           </p>
 
           {/* Mode Selection */}
-          <div className="mb-12 animate-fade-in" style={{animationDelay: '0.4s'}}>
-            <ModeSelector 
-              currentMode={appMode}
-              onModeChange={handleModeChange}
-              className="glow-effect"
-            />
-          </div>
+          <ModeSelector 
+            currentMode={appMode}
+            onModeChange={handleModeChange}
+            className="mb-6"
+          />
 
           {/* Connection Component */}
-          <div className="mb-16 animate-fade-in" style={{animationDelay: '0.6s'}}>
-            {walletMode === 'aztec' ? (
-              <div className="glass-morphism p-8 max-w-md mx-auto">
-                <AztecWalletConnect 
-                  onWalletConnected={handleWalletConnected}
-                  onError={setWalletError}
-                  onLogoutComplete={handleDisconnectWallet}
-                />
-                {walletError && (
-                  <div className="mt-6 p-4 bg-red-500/20 border border-red-400/50 text-red-200 rounded-xl backdrop-blur-sm">
-                    <p className="text-sm">{walletError}</p>
-                    <button 
-                      onClick={() => handleModeChange('demo')}
-                      className="mt-3 text-xs underline text-red-300 hover:text-red-100 transition-colors"
-                    >
-                      Переключиться в демо режим
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="glass-morphism p-8 max-w-md mx-auto">
-                <WalletConnect onWalletConnected={handleWalletConnected} network={network} />
-              </div>
-            )}
-          </div>
+          {walletMode === 'aztec' ? (
+            <div>
+              <AztecWalletConnect 
+                onWalletConnected={handleWalletConnected}
+                onError={setWalletError}
+                onLogoutComplete={handleDisconnectWallet}
+              />
+              {walletError && (
+                <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded max-w-md mx-auto">
+                  <p className="text-sm">{walletError}</p>
+                  <button 
+                    onClick={() => handleModeChange('demo')}
+                    className="mt-2 text-xs underline"
+                  >
+                    Switch to demo mode
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <WalletConnect onWalletConnected={handleWalletConnected} network={network} />
+          )}
           
-          {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="card-feature text-center animate-fade-in" style={{animationDelay: '0.8s'}}>
-              <div className="text-6xl mb-6 filter drop-shadow-lg">🔒</div>
-              <h3 className="text-2xl font-bold mb-4 gradient-text">Полная Приватность</h3>
-              <p className="text-white/80 leading-relaxed">Ваши ставки зашифрованы и невидимы до завершения аукциона</p>
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-b-3xl"></div>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <div className="card text-center py-4">
+              <div className="text-2xl mb-2">🔒</div>
+              <h3 className="text-base font-semibold mb-1">Complete Privacy</h3>
+              <p className="text-sm text-gray-600">Encrypted bids until auction ends</p>
             </div>
-            
-            <div className="card-feature text-center animate-fade-in" style={{animationDelay: '1.0s'}}>
-              <div className="text-6xl mb-6 filter drop-shadow-lg">⚡</div>
-              <h3 className="text-2xl font-bold mb-4 gradient-text">Zero-Knowledge</h3>
-              <p className="text-white/80 leading-relaxed">Использует передовые zk-доказательства для обеспечения безопасности</p>
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-b-3xl"></div>
+            <div className="card text-center py-4">
+              <div className="text-2xl mb-2">⚡</div>
+              <h3 className="text-base font-semibold mb-1">Zero-Knowledge</h3>
+              <p className="text-sm text-gray-600">Advanced zk-proofs security</p>
             </div>
-            
-            <div className="card-feature text-center animate-fade-in" style={{animationDelay: '1.2s'}}>
-              <div className="text-6xl mb-6 filter drop-shadow-lg">🏆</div>
-              <h3 className="text-2xl font-bold mb-4 gradient-text">Честная Торговля</h3>
-              <p className="text-white/80 leading-relaxed">Победитель определяется автоматически без возможности манипуляций</p>
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 to-indigo-500 rounded-b-3xl"></div>
+            <div className="card text-center py-4">
+              <div className="text-2xl mb-2">🏆</div>
+              <h3 className="text-base font-semibold mb-1">Fair Trading</h3>
+              <p className="text-sm text-gray-600">Automatic winner determination</p>
             </div>
-          </div>
-
-          {/* Additional decorative elements */}
-          <div className="mt-16 flex justify-center space-x-8 opacity-40">
-            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
-            <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
           </div>
         </div>
       </div>
@@ -253,72 +207,70 @@ export default function Home() {
         onModeChange={handleModeChange}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Network Status */}
         <NetworkStatusAlert />
 
-        {/* Current Mode and Network Information */}
-        <div className="mb-8">
-          <div className={`glass-morphism p-6 border transition-all duration-300 ${
+        {/* Compact Mode and Network Information */}
+        <div className="mb-4">
+          <div className={`border rounded-lg p-3 ${
             appMode === 'demo' 
-              ? 'border-emerald-400/30 bg-emerald-500/10' 
-              : 'border-indigo-400/30 bg-indigo-500/10'
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-blue-50 border-blue-200'
           }`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <ModeIndicator 
-                  mode={appMode}
-                  network={network}
-                  onClick={() => setIsModeToggleModalOpen(true)}
-                />
-                <div>
-                  <h3 className={`text-sm font-semibold ${
-                    appMode === 'demo' ? 'text-emerald-300' : 'text-indigo-300'
-                  }`}>
-                    {appMode === 'demo' 
-                      ? '🎮 Демо режим - Симуляция работы'
-                      : `🌐 Реальный режим - ${network === 'testnet' ? 'Aztec Alpha Testnet' : 'Aztec Sandbox'}`
-                    }
-                  </h3>
-                  <p className={`text-sm ${
-                    appMode === 'demo' ? 'text-emerald-200/80' : 'text-indigo-200/80'
-                  }`}>
-                    {appMode === 'demo'
-                      ? 'Все операции имитируются. Данные хранятся локально в браузере.'
-                      : network === 'testnet' 
-                        ? 'Подключено к настоящей тестовой сети Aztec. Все операции происходят в блокчейне.'
-                        : 'Подключено к локальному Aztec Sandbox для разработки.'
-                    }
-                  </p>
-                </div>
+            <div className="flex items-center gap-3">
+              <ModeIndicator 
+                mode={appMode}
+                network={network}
+                onClick={() => setIsModeToggleModalOpen(true)}
+              />
+              <div>
+                <h3 className={`text-sm font-medium ${
+                  appMode === 'demo' ? 'text-green-900' : 'text-blue-900'
+                }`}>
+                  {appMode === 'demo' 
+                    ? '🎮 Demo Mode'
+                    : `🌐 Real Mode - ${network === 'testnet' ? 'Testnet' : 'Sandbox'}`
+                  }
+                </h3>
+                <p className={`text-xs ${
+                  appMode === 'demo' ? 'text-green-700' : 'text-blue-700'
+                }`}>
+                  {appMode === 'demo'
+                    ? 'Simulated operations, data stored locally'
+                    : network === 'testnet' 
+                      ? 'Connected to Aztec Alpha Testnet'
+                      : 'Connected to local Aztec Sandbox'
+                  }
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs for auction filtering */}
-        <div className="mb-8">
-          <div className="glass-morphism p-2 inline-flex rounded-2xl">
-            <nav className="flex space-x-2">
+        {/* Compact Tabs for auction filtering */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-6">
               <button
                 onClick={() => setActiveTab('active')}
-                className={`py-3 px-6 rounded-xl font-medium text-sm transition-all duration-300 ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'active'
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg transform scale-105'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Активные Аукционы
+                Active Auctions
               </button>
               <button
                 onClick={() => setActiveTab('completed')}
-                className={`py-3 px-6 rounded-xl font-medium text-sm transition-all duration-300 ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'completed'
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg transform scale-105'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Завершенные Аукционы
+                Completed Auctions
               </button>
             </nav>
           </div>

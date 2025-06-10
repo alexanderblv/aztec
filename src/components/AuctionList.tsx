@@ -240,51 +240,42 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-        <div className="ml-4 text-gray-600">
-          Loading auctions from Aztec {typeof window !== 'undefined' && localStorage.getItem('aztecNetwork') === 'testnet' ? 'Testnet' : 'Sandbox'}...
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        <div className="ml-3 text-gray-600 text-sm">
+          Loading auctions...
         </div>
       </div>
     )
   }
 
   if (filteredAuctions.length === 0) {
-    const network = typeof window !== 'undefined' ? localStorage.getItem('aztecNetwork') || 'sandbox' : 'sandbox'
-    
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">🏛️</div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+      <div className="text-center py-8">
+        <div className="text-4xl mb-3">🏛️</div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
           {filterType === 'active' 
-            ? 'No active auctions yet' 
-            : 'No completed auctions yet'
+            ? 'No active auctions' 
+            : 'No completed auctions'
           }
         </h3>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 text-sm">
           {filterType === 'active' 
-            ? 'Create the first auction and start trading!' 
-            : 'Completed auctions will appear here after trading ends.'
+            ? 'Create the first auction to start trading!' 
+            : 'Completed auctions will appear here.'
           }
-        </p>
-        <p className="text-sm text-blue-600">
-          Current network: {network === 'testnet' ? 'Aztec Alpha Testnet' : 'Aztec Sandbox (demo)'}
         </p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="text-sm text-gray-600 mb-4">
-        Loaded {filteredAuctions.length} auction(s) from {typeof window !== 'undefined' && localStorage.getItem('aztecNetwork') === 'testnet' ? 'Aztec Testnet' : 'Aztec Sandbox'}
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="space-y-3">      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredAuctions.map((auction) => (
           <div key={auction.id} className="card hover:shadow-lg transition-shadow duration-200">
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex-1">
+            <div className="flex items-start justify-between mb-3">
+              <h3 className="text-base font-semibold text-gray-900 flex-1">
                 {auction.itemName}
               </h3>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -296,18 +287,14 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
               </span>
             </div>
 
-            <p className="text-gray-600 mb-4 text-sm">
+            <p className="text-gray-600 mb-3 text-sm line-clamp-2">
               {auction.description}
             </p>
 
-            <div className="space-y-2 mb-4">
+            <div className="space-y-1 mb-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Min. bid:</span>
                 <span className="font-medium">{auction.minBid} ETH</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Creator:</span>
-                <span className="font-medium">{formatAddress(auction.creator)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">
@@ -337,13 +324,13 @@ export default function AuctionList({ onBidClick, filterType }: AuctionListProps
             {auction.isActive ? (
               <button
                 onClick={() => onBidClick(auction.id)}
-                className="w-full btn-primary"
+                className="w-full btn-primary text-sm"
               >
-                🔒 Place Private Bid
+                🔒 Place Bid
               </button>
             ) : (
-              <div className="text-center text-gray-500 text-sm py-2">
-                Auction completed
+              <div className="text-center text-gray-500 text-sm py-1">
+                Completed
               </div>
             )}
           </div>
