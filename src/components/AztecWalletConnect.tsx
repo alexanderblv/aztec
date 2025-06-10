@@ -29,6 +29,46 @@ export default function AztecWalletConnect({
   const [hasSDK, setHasSDK] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  // Helper functions for wallet conflict resolution
+  const checkWalletConflicts = () => {
+    if (typeof window === 'undefined') return false
+    
+    const ethereum = (window as any).ethereum
+    if (!ethereum) return false
+    
+    // Check if multiple providers exist (indicating potential conflicts)
+    if (ethereum.providers && ethereum.providers.length > 1) {
+      console.log('Multiple wallet providers detected:', ethereum.providers.length)
+      return true
+    }
+    
+    // Check if MetaMask is preventing other wallets from setting ethereum
+    if (ethereum.isMetaMask && !ethereum.isAzguard) {
+      console.log('MetaMask detected without Azguard integration')
+      return true
+    }
+    
+    return false
+  }
+
+  const resolveWalletConflicts = () => {
+    if (typeof window === 'undefined') return
+    
+    try {
+      // Clear any cached wallet preferences that might cause conflicts
+      localStorage.removeItem('metamask.isUnlocked')
+      localStorage.removeItem('metamask.disconnected')
+      
+      // Set preference for Azguard
+      localStorage.setItem('preferredWallet', 'azguard')
+      localStorage.setItem('walletConflictResolved', 'true')
+      
+      console.log('Wallet conflict resolution applied')
+    } catch (error) {
+      console.error('Failed to resolve wallet conflicts:', error)
+    }
+  }
+
   // Available wallet connectors
   const wallets: WalletConnector[] = [
     {
@@ -51,6 +91,13 @@ export default function AztecWalletConnect({
   useEffect(() => {
     const initializeSDK = async () => {
       try {
+        // Check for wallet conflicts first
+        const hasWalletConflicts = checkWalletConflicts()
+        if (hasWalletConflicts) {
+          console.warn('Wallet conflicts detected, attempting automatic resolution...')
+          resolveWalletConflicts()
+        }
+        
         // Try-catch wrapped dynamic import with fallback
         let walletSdk: any;
         
