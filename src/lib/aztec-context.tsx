@@ -41,9 +41,22 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
   useEffect(() => {
     const initializeService = async () => {
       try {
-        const newService = network === 'testnet' ? new AztecService() : aztecDemoService
+        // Check app mode to determine service choice
+        const appMode = typeof window !== 'undefined' ? localStorage.getItem('appMode') : null
+        const walletMode = typeof window !== 'undefined' ? localStorage.getItem('walletMode') : null
         
-        if (network === 'testnet') {
+        // For Real Mode with external wallets, use demo service as backend
+        // since we can't deploy contracts yet
+        let newService: any
+        
+        if (appMode === 'real' && walletMode === 'aztec') {
+          // Real Mode with external wallet - use demo service for now
+          // This allows real wallet addresses to work with demo auction functionality
+          newService = aztecDemoService
+          console.log('🌐 Real Mode: Using demo service backend with real wallet addresses')
+        } else if (network === 'testnet') {
+          // Testnet mode - use real Aztec service
+          newService = new AztecService()
           const testnetUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost'
             ? 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
             : 'https://aztec-alpha-testnet-fullnode.zkv.xyz'
@@ -51,6 +64,8 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
           console.log('🌐 Connected to Aztec Testnet')
           console.warn('⚠️ Contract not yet deployed. To place bids, you need to compile and deploy the contract or switch to demo mode.')
         } else {
+          // Demo mode - use demo service
+          newService = aztecDemoService
           await newService.initialize()
           console.log('🔧 Connected to Aztec Sandbox (demo)')
         }
@@ -77,6 +92,29 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
 
     initializeService()
   }, [network])
+
+  // Re-initialize when app mode changes (for Real Mode detection)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    
+    const handleStorageChange = () => {
+      // Re-initialize service when app mode changes
+      if (service) {
+        setTimeout(() => {
+          const appMode = localStorage.getItem('appMode')
+          const walletMode = localStorage.getItem('walletMode')
+          
+          if (appMode === 'real' && walletMode === 'aztec' && service !== aztecDemoService) {
+            console.log('🔄 Switching to demo service backend for Real Mode')
+            setService(aztecDemoService)
+          }
+        }, 100)
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [service])
 
   // Restore state on load
   useEffect(() => {
@@ -149,6 +187,11 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
     if (typeof window !== 'undefined') {
       localStorage.setItem('walletAddress', address)
       localStorage.setItem('walletMode', 'aztec')
+    }
+    
+    // If we're using demo service as backend for Real Mode, set the external wallet
+    if (service && service.setExternalWallet) {
+      service.setExternalWallet(address)
     }
     
     console.log('Real wallet connected:', address)

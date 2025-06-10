@@ -180,13 +180,48 @@ export class AztecDemoService {
     return address;
   }
 
+  // New method for connecting external wallets (Real Mode)
+  setExternalWallet(address: string): void {
+    this.currentWallet = address;
+    this.storage.set('current_wallet', address);
+    console.log('External wallet set:', address);
+  }
+
+  // Update wallet check to also look for external wallet
+  private getConnectedWallet(): string | null {
+    // First check current wallet
+    if (this.currentWallet) return this.currentWallet;
+    
+    // Then check storage
+    const storageWallet = this.storage.get('current_wallet');
+    if (storageWallet) {
+      this.currentWallet = storageWallet;
+      return storageWallet;
+    }
+    
+    // Finally check if there's a Real Mode wallet address
+    if (typeof window !== 'undefined') {
+      const realModeAddress = localStorage.getItem('walletAddress');
+      const walletMode = localStorage.getItem('walletMode');
+      const appMode = localStorage.getItem('appMode');
+      
+      if (appMode === 'real' && walletMode === 'aztec' && realModeAddress) {
+        this.currentWallet = realModeAddress;
+        return realModeAddress;
+      }
+    }
+    
+    return null;
+  }
+
   async createAuction(
     itemName: string,
     description: string,
     durationHours: number,
     minBid: number
   ): Promise<number> {
-    if (!this.currentWallet) {
+    const wallet = this.getConnectedWallet();
+    if (!wallet) {
       throw new Error('Кошелек не подключен');
     }
 
@@ -201,7 +236,7 @@ export class AztecDemoService {
       startTime,
       endTime,
       minBid,
-      creator: this.currentWallet,
+      creator: wallet,
       isActive: true,
     };
 
@@ -212,7 +247,8 @@ export class AztecDemoService {
   }
 
   async placeBid(auctionId: number, amount: number): Promise<void> {
-    if (!this.currentWallet) {
+    const wallet = this.getConnectedWallet();
+    if (!wallet) {
       throw new Error('Кошелек не подключен');
     }
 
@@ -234,11 +270,11 @@ export class AztecDemoService {
     }
 
     // Создаем зашифрованную ставку (симуляция)
-    const bidId = `${auctionId}_${this.currentWallet}_${Date.now()}`;
+    const bidId = `${auctionId}_${wallet}_${Date.now()}`;
     const encryptedBid = {
       id: bidId,
       auctionId,
-      bidder: this.currentWallet,
+      bidder: wallet,
       amount, // В реальности это будет зашифровано
       timestamp: Date.now(),
       isPrivate: true,
@@ -319,14 +355,15 @@ export class AztecDemoService {
   }
 
   async amIWinner(auctionId: number): Promise<boolean> {
-    if (!this.currentWallet) return false;
+    const wallet = this.getConnectedWallet();
+    if (!wallet) return false;
     
     const result = this.storage.get(`result_${auctionId}`);
-    return result && result.winner === this.currentWallet;
+    return result && result.winner === wallet;
   }
 
   getWalletAddress(): string | null {
-    return this.currentWallet || this.storage.get('current_wallet');
+    return this.getConnectedWallet();
   }
 
   // Утилитарные методы

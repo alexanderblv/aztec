@@ -166,4 +166,44 @@ window.resetAztecWallet = function() {
   setTimeout(() => window.location.reload(), 1000);
 };
 
-console.log('\n🚀 Для полного сброса выполните: resetAztecWallet()'); 
+console.log('\n🚀 Для полного сброса выполните: resetAztecWallet()');
+
+// 4. Test Real Mode bidding functionality
+window.testRealModeBidding = function() {
+  console.log('\n🧪 Testing Real Mode Bidding...')
+  
+  const appMode = localStorage.getItem('appMode')
+  const walletMode = localStorage.getItem('walletMode')
+  const walletAddress = localStorage.getItem('walletAddress')
+  
+  if (appMode !== 'real' || walletMode !== 'aztec') {
+    console.log('❌ Not in Real Mode - switch to Real Mode first')
+    return false
+  }
+  
+  if (!walletAddress) {
+    console.log('❌ No wallet address found - connect your real wallet first')
+    return false
+  }
+  
+  console.log('✅ Real Mode configuration detected:')
+  console.log('  - App Mode:', appMode)
+  console.log('  - Wallet Mode:', walletMode)
+  console.log('  - Wallet Address:', walletAddress)
+  
+  // Check if service is available and correctly configured
+  const isServiceReady = typeof window !== 'undefined' && 
+    window.location.pathname && 
+    document.querySelector('[data-testid="auction-list"], .auction, [class*="auction"]')
+  
+  if (isServiceReady) {
+    console.log('✅ Auction interface detected - ready for testing')
+    console.log('💡 Try placing a bid on an auction to test the fix')
+  } else {
+    console.log('⚠️ Auction interface not fully loaded yet')
+  }
+  
+  return true
+}
+
+console.log('testRealModeBidding() - тест функциональности ставок в Real Mode'); 
