@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { AztecProvider } from '@/lib/aztec-context'
+import { AztecWalletProvider } from '@/components/AztecWalletProvider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -17,9 +18,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="min-h-screen">
-          <AztecProvider>
-            {children}
-          </AztecProvider>
+          <AztecWalletProvider>
+            <AztecProvider>
+              {children}
+            </AztecProvider>
+          </AztecWalletProvider>
         </div>
       </body>
     </html>

@@ -6,7 +6,7 @@ import Header from '@/components/Header'
 import AuctionList from '@/components/AuctionList'
 import CreateAuctionModal from '@/components/CreateAuctionModal'
 import BidModal from '@/components/BidModal'
-import PrivyWalletConnectFull from '@/components/PrivyWalletConnectFull'
+import AztecWalletConnect from '@/components/AztecWalletConnect'
 import WalletConnect from '@/components/WalletConnect'
 import NetworkSelector from '@/components/NetworkSelector'
 import NetworkStatusAlert from '@/components/NetworkStatusAlert'
@@ -20,8 +20,8 @@ export default function Home() {
   const [isModeToggleModalOpen, setIsModeToggleModalOpen] = useState(false)
   const [selectedAuctionId, setSelectedAuctionId] = useState<number | null>(null)
   const [appMode, setAppMode] = useState<AppMode>('demo')
-  const [walletMode, setWalletMode] = useState<'privy' | 'demo'>('demo')
-  const [privyError, setPrivyError] = useState<string>('')
+  const [walletMode, setWalletMode] = useState<'aztec' | 'demo'>('demo')
+  const [walletError, setWalletError] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   const [refreshKey, setRefreshKey] = useState(0)
 
@@ -42,22 +42,22 @@ export default function Home() {
 
   useEffect(() => {
     // Check wallet connection state on load
-    const savedMode = localStorage.getItem('walletMode') as 'privy' | 'demo'
-    const privyLoggedOut = localStorage.getItem('privyLoggedOut')
+    const savedMode = localStorage.getItem('walletMode') as 'aztec' | 'demo'
+    const walletDisconnected = localStorage.getItem('aztecWalletDisconnected')
     
     if (savedMode === 'demo') {
       // For demo mode always restore state
       setWalletMode(savedMode)
       setAppMode('demo')
-    } else if (savedMode === 'privy' && privyLoggedOut !== 'true') {
-      // For Privy restore only if user wasn't explicitly disconnected
-      setWalletMode(savedMode || 'privy')
+    } else if (savedMode === 'aztec' && walletDisconnected !== 'true') {
+      // For Aztec restore only if user wasn't explicitly disconnected
+      setWalletMode(savedMode || 'aztec')
       setAppMode('real')
     }
   }, [])
 
   const handleModeChange = async (newMode: AppMode) => {
-    const newWalletMode = newMode === 'demo' ? 'demo' : 'privy'
+    const newWalletMode = newMode === 'demo' ? 'demo' : 'aztec'
     
     // Disconnect current wallet if connected
     if (isConnected) {
@@ -66,10 +66,10 @@ export default function Home() {
     
     setAppMode(newMode)
     setWalletMode(newWalletMode)
-    setPrivyError('')
+    setWalletError('')
     
     // Clear any error states
-    localStorage.removeItem('privyLoggedOut')
+    localStorage.removeItem('aztecConnectedWallet')
     
     console.log(`Mode switched to: ${newMode}`)
   }
@@ -89,25 +89,19 @@ export default function Home() {
   }
 
   const handleDisconnectWallet = () => {
-    // Set disconnect flag for Privy wallets
-    if (walletMode === 'privy') {
-      localStorage.setItem('privyLoggedOut', 'true')
+    // Set disconnect flag for Aztec wallets
+    if (walletMode === 'aztec') {
+      localStorage.setItem('aztecWalletDisconnected', 'true')
     }
     
     // Disconnect through Aztec context
     disconnect()
     
-    setPrivyError('')
+    setWalletError('')
     localStorage.removeItem('walletAddress')
     localStorage.removeItem('walletMode')
     localStorage.removeItem('aztecNetwork')
-    
-    // Force page reload to fully clear Privy state
-    if (walletMode === 'privy') {
-      setTimeout(() => {
-        window.location.reload()
-      }, 100)
-    }
+    localStorage.removeItem('aztecConnectedWallet')
   }
 
   const handleNetworkChange = async (newNetwork: 'sandbox' | 'testnet') => {
@@ -168,16 +162,16 @@ export default function Home() {
           )}
 
           {/* Connection Component */}
-          {walletMode === 'privy' ? (
+          {walletMode === 'aztec' ? (
             <div>
-              <PrivyWalletConnectFull 
+              <AztecWalletConnect 
                 onWalletConnected={handleWalletConnected}
-                onError={setPrivyError}
+                onError={setWalletError}
                 onLogoutComplete={handleDisconnectWallet}
               />
-              {privyError && (
+              {walletError && (
                 <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded max-w-md mx-auto">
-                  <p className="text-sm">{privyError}</p>
+                  <p className="text-sm">{walletError}</p>
                   <button 
                     onClick={() => handleModeChange('demo')}
                     className="mt-2 text-xs underline"

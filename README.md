@@ -304,34 +304,39 @@ Web platform for private auctions built on Aztec Network blockchain using zero-k
 
 ## 🚨 IMPORTANT: Wallet Connection Setup
 
-**Currently wallet connection works in demo mode!** To work with real wallets via [Privy](https://www.privy.io/), follow these steps:
+**Теперь платформа поддерживает Aztec кошельки!** Для работы с реальными кошельками Azguard и Obsidion, следуйте этим шагам:
 
-### Step 1: Install dependencies
+### Step 1: Install Aztec Wallet SDK
 ```bash
-npm install --legacy-peer-deps
+# Remove old Privy dependencies
+npm uninstall @privy-io/react-auth @privy-io/wagmi viem wagmi @tanstack/react-query
+
+# Install Aztec Wallet SDK
+npm install @nemi-fi/wallet-sdk@latest
 ```
 
-### Step 2: Configure Privy App ID
-1. Register at [console.privy.io](https://console.privy.io/)
-2. Create a new application 
-3. Copy the App ID
-4. Create `.env.local` file in project root:
-```env
-NEXT_PUBLIC_PRIVY_APP_ID=your_app_id_here
+### Step 2: Setup configuration
+```bash
+# Copy Aztec wallets configuration
+npm run setup:aztec
+
+# Or manually create .env.local with:
+# NEXT_PUBLIC_APP_MODE=aztec
+# NEXT_PUBLIC_WALLET_MODE=aztec
 ```
 
 ### Step 3: Restart application
 ```bash
-npm run dev
+npm run dev:aztec
 ```
 
-After this, instead of the demo version you'll have **real** wallet connection with support for:
-- 📧 Email and SMS login
-- 👛 External wallets (MetaMask, WalletConnect)
-- 🔒 Built-in secure Privy wallets
-- 🌐 Google and social networks
+After this, you'll have **real** Aztec wallet connection with support for:
+- 🌐 **Obsidion Wallet** - Privacy-first wallet for Aztec Network
+- 🛡️ **Azguard Wallet** - Secure Aztec wallet (Alpha)
+- 🔒 Native Aztec Network integration
+- ⚡ Optimized for private DeFi
 
-📚 **Detailed instructions:** see files `PRIVY_INTEGRATION.md` and `DEPENDENCY_FIX.md`
+📚 **Detailed instructions:** see file `AZTEC_WALLETS_INTEGRATION.md`
 
 ---
 
