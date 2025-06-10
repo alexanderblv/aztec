@@ -134,60 +134,91 @@ export default function Home() {
   if (!isConnected) {
     return (
       <div className="min-h-screen flex items-center justify-center py-8">
-        <div className="text-center max-w-3xl mx-auto px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Private Auctions
-          </h1>
-          <p className="text-base md:text-lg text-gray-600 mb-6 max-w-xl mx-auto">
-            Private auction platform powered by Aztec Network. Your bids remain confidential until auction ends.
-          </p>
+        <div className="max-w-6xl mx-auto px-4 w-full">
+          {/* Header Section */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+              Private Auctions
+            </h1>
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+              Private auction platform powered by Aztec Network. Your bids remain confidential until auction ends.
+            </p>
+          </div>
 
-          {/* Mode Selection */}
-          <ModeSelector 
-            currentMode={appMode}
-            onModeChange={handleModeChange}
-            className="mb-6"
-          />
+          {/* Main Content - Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start max-w-4xl mx-auto lg:max-w-none">
+            
+            {/* Left Column - Mode Selection & Connection */}
+            <div className="space-y-6">
+              {/* Mode Selection */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose Mode</h2>
+                <ModeSelector 
+                  currentMode={appMode}
+                  onModeChange={handleModeChange}
+                />
+              </div>
 
-          {/* Connection Component */}
-          {walletMode === 'aztec' ? (
+              {/* Connection Component */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Connect Wallet</h2>
+                {walletMode === 'aztec' ? (
+                  <div>
+                    <AztecWalletConnect 
+                      onWalletConnected={handleWalletConnected}
+                      onError={setWalletError}
+                      onLogoutComplete={handleDisconnectWallet}
+                    />
+                    {walletError && (
+                      <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                        <p className="text-sm">{walletError}</p>
+                        <button 
+                          onClick={() => handleModeChange('demo')}
+                          className="mt-2 text-xs underline"
+                        >
+                          Switch to demo mode
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <WalletConnect onWalletConnected={handleWalletConnected} network={network} />
+                )}
+              </div>
+            </div>
+
+            {/* Right Column - Features */}
             <div>
-              <AztecWalletConnect 
-                onWalletConnected={handleWalletConnected}
-                onError={setWalletError}
-                onLogoutComplete={handleDisconnectWallet}
-              />
-              {walletError && (
-                <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded max-w-md mx-auto">
-                  <p className="text-sm">{walletError}</p>
-                  <button 
-                    onClick={() => handleModeChange('demo')}
-                    className="mt-2 text-xs underline"
-                  >
-                    Switch to demo mode
-                  </button>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Key Features</h2>
+              <div className="space-y-4">
+                <div className="card py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">🔒</div>
+                    <div>
+                      <h3 className="text-base font-semibold mb-1">Complete Privacy</h3>
+                      <p className="text-sm text-gray-600">Encrypted bids until auction ends</p>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-          ) : (
-            <WalletConnect onWalletConnected={handleWalletConnected} network={network} />
-          )}
-          
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <div className="card text-center py-4">
-              <div className="text-2xl mb-2">🔒</div>
-              <h3 className="text-base font-semibold mb-1">Complete Privacy</h3>
-              <p className="text-sm text-gray-600">Encrypted bids until auction ends</p>
-            </div>
-            <div className="card text-center py-4">
-              <div className="text-2xl mb-2">⚡</div>
-              <h3 className="text-base font-semibold mb-1">Zero-Knowledge</h3>
-              <p className="text-sm text-gray-600">Advanced zk-proofs security</p>
-            </div>
-            <div className="card text-center py-4">
-              <div className="text-2xl mb-2">🏆</div>
-              <h3 className="text-base font-semibold mb-1">Fair Trading</h3>
-              <p className="text-sm text-gray-600">Automatic winner determination</p>
+                <div className="card py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">⚡</div>
+                    <div>
+                      <h3 className="text-base font-semibold mb-1">Zero-Knowledge</h3>
+                      <p className="text-sm text-gray-600">Advanced zk-proofs security</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="card py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">🏆</div>
+                    <div>
+                      <h3 className="text-base font-semibold mb-1">Fair Trading</h3>
+                      <p className="text-sm text-gray-600">Automatic winner determination</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
