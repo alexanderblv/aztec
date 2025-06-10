@@ -32,6 +32,8 @@ export default function ModeSelector({
 
   return (
     <div className={`w-full ${className}`}>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4 text-center">Choose Mode</h2>
+      
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {/* Demo Mode */}
         <button
@@ -90,7 +92,7 @@ export default function ModeSelector({
 
       {/* Compact Status */}
       <div className="mt-3 p-2 rounded bg-gray-50 border border-gray-200">
-        <div className="text-xs text-gray-600">
+        <div className="text-xs text-gray-600 text-center">
           {currentMode === 'demo' ? (
             <span>✓ Demo mode: All data stored locally, no real transactions</span>
           ) : (
