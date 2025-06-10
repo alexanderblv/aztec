@@ -8,7 +8,7 @@ import CreateAuctionModal from '@/components/CreateAuctionModal'
 import BidModal from '@/components/BidModal'
 import AztecWalletConnect from '@/components/AztecWalletConnect'
 import WalletConnect from '@/components/WalletConnect'
-import NetworkSelector from '@/components/NetworkSelector'
+
 import NetworkStatusAlert from '@/components/NetworkStatusAlert'
 import ModeSelector, { AppMode } from '@/components/ModeSelector'
 import ModeIndicator from '@/components/ModeIndicator'
@@ -150,16 +150,7 @@ export default function Home() {
             className="mb-8"
           />
 
-          {/* Aztec Network Selection - only show for real mode */}
-          {appMode === 'real' && (
-            <div className="mb-8">
-              <NetworkSelector 
-                currentNetwork={network}
-                onNetworkChange={handleNetworkChange}
-                disabled={false}
-              />
-            </div>
-          )}
+
 
           {/* Connection Component */}
           {walletMode === 'aztec' ? (
@@ -258,13 +249,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              {appMode === 'real' && (
-                <NetworkSelector 
-                  currentNetwork={network}
-                  onNetworkChange={handleNetworkChange}
-                  disabled={false}
-                />
-              )}
+
             </div>
           </div>
         </div>
