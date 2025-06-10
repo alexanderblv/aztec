@@ -6,7 +6,7 @@ interface HeaderProps {
   walletAddress: string
   onDisconnect: () => void
   onCreateAuction: () => void
-  walletMode?: 'privy' | 'demo'
+  walletMode?: 'privy' | 'demo' | 'aztec'
   network?: 'sandbox' | 'testnet'
   appMode?: AppMode
   onModeChange?: (mode: AppMode) => void
