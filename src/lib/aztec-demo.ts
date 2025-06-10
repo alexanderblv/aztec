@@ -91,7 +91,60 @@ export class AztecDemoService {
     // Симуляция инициализации
     await new Promise(resolve => setTimeout(resolve, 500));
     this.isInitialized = true;
+    
+    // Создаем демонстрационные аукционы, если их еще нет
+    await this.createDemoAuctions();
+    
     console.log('Aztec Demo Service инициализирован');
+  }
+
+  private async createDemoAuctions(): Promise<void> {
+    // Проверяем, есть ли уже аукционы
+    const existingAuctions = this.storage.getAll('auction_');
+    if (existingAuctions.length > 0) {
+      return; // Аукционы уже созданы
+    }
+
+    // Создаем демонстрационные аукционы
+    const demoAuctions = [
+      {
+        id: 1,
+        itemName: 'Rare Vintage Painting',
+        description: 'Original painting from the 1950s in excellent condition',
+        startTime: Date.now() - 3600000, // Начался час назад
+        endTime: Date.now() + 3600000, // Закончится через час
+        minBid: 1000,
+        creator: '0x1234567890123456789012345678901234567890',
+        isActive: true,
+      },
+      {
+        id: 2,
+        itemName: 'Collectible Rolex Watch',
+        description: 'Vintage Rolex Submariner from 1970',
+        startTime: Date.now() - 7200000, // Начался 2 часа назад
+        endTime: Date.now() + 1800000, // Закончится через 30 минут
+        minBid: 5000,
+        creator: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcdef',
+        isActive: true,
+      },
+      {
+        id: 3,
+        itemName: 'First Edition Book',
+        description: 'First edition of "War and Peace" by L.N. Tolstoy',
+        startTime: Date.now() - 10800000, // Начался 3 часа назад
+        endTime: Date.now() - 1800000, // Закончился 30 минут назад
+        minBid: 2000,
+        creator: '0x9999999999999999999999999999999999999999',
+        isActive: false,
+      },
+    ];
+
+    // Сохраняем каждый аукцион
+    for (const auction of demoAuctions) {
+      this.storage.set(`auction_${auction.id}`, auction);
+    }
+
+    console.log('Демонстрационные аукционы созданы');
   }
 
   async createWallet(): Promise<string> {

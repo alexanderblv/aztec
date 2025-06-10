@@ -13,6 +13,7 @@ import NetworkStatusAlert from '@/components/NetworkStatusAlert'
 import ModeSelector, { AppMode } from '@/components/ModeSelector'
 import ModeIndicator from '@/components/ModeIndicator'
 import ModeToggleModal from '@/components/ModeToggleModal'
+import { walletConflictResolver } from '@/lib/wallet-conflict-resolver'
 
 export default function Home() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -41,6 +42,26 @@ export default function Home() {
   }, [walletMode])
 
   useEffect(() => {
+    // Initialize wallet conflict resolver
+    const initializeWalletResolver = async () => {
+      try {
+        const conflicts = walletConflictResolver.detectConflicts()
+        if (conflicts.hasConflicts) {
+          console.log('Wallet conflicts detected:', conflicts.wallets)
+          console.log('Wallet conflicts detected, attempting automatic resolution...')
+          await walletConflictResolver.resolveConflicts()
+          console.log('Wallet conflict resolution applied')
+        } else {
+          console.log('Mode switched to:', appMode)
+          if (conflicts.wallets.includes('MetaMask') && !conflicts.wallets.includes('Azguard')) {
+            console.log('MetaMask detected without Azguard integration')
+          }
+        }
+      } catch (error) {
+        console.error('Error in wallet conflict resolution:', error)
+      }
+    }
+
     // Check wallet connection state on load
     const savedMode = localStorage.getItem('walletMode') as 'aztec' | 'demo'
     const walletDisconnected = localStorage.getItem('aztecWalletDisconnected')
@@ -54,6 +75,9 @@ export default function Home() {
       setWalletMode(savedMode || 'aztec')
       setAppMode('real')
     }
+
+    // Initialize wallet resolver
+    initializeWalletResolver()
   }, [])
 
   const handleModeChange = async (newMode: AppMode) => {

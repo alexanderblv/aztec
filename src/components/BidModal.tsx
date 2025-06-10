@@ -37,13 +37,36 @@ export default function BidModal({ isOpen, auctionId, onClose, onBidPlaced }: Bi
         try {
           // For demo mode use existing logic
           if (!isTestnet) {
-            const mockAuctions = [
-              { id: 1, itemName: 'Rare Vintage Painting', minBid: 1000, endTime: Date.now() + 3600000 },
-              { id: 2, itemName: 'Collectible Rolex Watch', minBid: 5000, endTime: Date.now() + 1800000 },
-            ]
-            
-            const auction = mockAuctions.find(a => a.id === auctionId)
-            setAuctionInfo(auction || null)
+            // First try to get auction from service
+            try {
+              const realAuctionInfo = await service.getAuctionInfo(auctionId)
+              if (realAuctionInfo) {
+                setAuctionInfo({
+                  id: auctionId,
+                  itemName: realAuctionInfo.itemName,
+                  minBid: realAuctionInfo.minBid,
+                  endTime: realAuctionInfo.endTime
+                })
+              } else {
+                // If auction not found in service, use mock data as fallback
+                const mockAuctions = [
+                  { id: 1, itemName: 'Rare Vintage Painting', minBid: 1000, endTime: Date.now() + 3600000 },
+                  { id: 2, itemName: 'Collectible Rolex Watch', minBid: 5000, endTime: Date.now() + 1800000 },
+                ]
+                
+                const auction = mockAuctions.find(a => a.id === auctionId)
+                setAuctionInfo(auction || null)
+              }
+            } catch (error) {
+              console.warn('Failed to load auction from service, using mock data')
+              const mockAuctions = [
+                { id: 1, itemName: 'Rare Vintage Painting', minBid: 1000, endTime: Date.now() + 3600000 },
+                { id: 2, itemName: 'Collectible Rolex Watch', minBid: 5000, endTime: Date.now() + 1800000 },
+              ]
+              
+              const auction = mockAuctions.find(a => a.id === auctionId)
+              setAuctionInfo(auction || null)
+            }
           } else {
             // For testnet try to load real data
             try {
