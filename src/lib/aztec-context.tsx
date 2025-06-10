@@ -12,6 +12,7 @@ interface AztecContextType {
   walletAddress: string | null
   switchNetwork: (network: 'sandbox' | 'testnet') => Promise<void>
   connectWallet: (privateKey?: string) => Promise<string>
+  connectRealWallet: (address: string) => void
   disconnect: () => void
 }
 
@@ -139,6 +140,20 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
     }
   }
 
+  const connectRealWallet = (address: string) => {
+    // For real wallet connections, just set the address and connected state
+    // without creating a new wallet through the service
+    setWalletAddress(address)
+    setIsConnected(true)
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('walletAddress', address)
+      localStorage.setItem('walletMode', 'aztec')
+    }
+    
+    console.log('Real wallet connected:', address)
+  }
+
   const disconnect = () => {
     setIsConnected(false)
     setWalletAddress(null)
@@ -157,6 +172,7 @@ export function AztecProvider({ children, initialNetwork = 'sandbox' }: AztecPro
     walletAddress,
     switchNetwork,
     connectWallet,
+    connectRealWallet,
     disconnect
   }
 

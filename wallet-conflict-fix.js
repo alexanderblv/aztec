@@ -167,9 +167,81 @@ console.log('\n🚀 Доступные команды:');
 console.log('fixWalletConflicts() - исправить конфликты');
 console.log('forceConnectAzguard() - подключиться к Azguard');
 console.log('disableMetaMask() - отключить MetaMask');
+console.log('diagnoseRealModeConnection() - диагностика Real Mode подключения');
+console.log('fixRealModeConnection() - исправить проблему Real Mode');
 
 // 7. Автоматическое исправление при загрузке (если включено)
 if (localStorage.getItem('autoFixWalletConflicts') === 'true') {
   console.log('\n🔄 Автоматическое исправление включено...');
   setTimeout(() => window.fixWalletConflicts(), 2000);
+}
+
+// 8. Диагностика проблемы Real Mode (новая функция)
+window.diagnoseRealModeConnection = function() {
+  console.log('\n🔍 Диагностика подключения в Real Mode...');
+  
+  const appMode = localStorage.getItem('appMode')
+  const walletMode = localStorage.getItem('walletMode')
+  const connectedWallet = localStorage.getItem('aztecConnectedWallet')
+  const walletAddress = localStorage.getItem('walletAddress')
+  
+  const diagnosis = {
+    appMode,
+    walletMode,
+    connectedWallet,
+    walletAddress,
+    realWalletProviders: window.ethereum?.providers?.length || 'single provider',
+    azguardActive: window.ethereum?.isAzguard || 
+      window.ethereum?.providers?.some(p => p.isAzguard)
+  }
+  
+  console.table(diagnosis)
+  
+  // Анализ проблемы
+  if (appMode === 'real' && walletMode === 'aztec' && connectedWallet) {
+    if (walletAddress && walletAddress.length > 10) {
+      console.log('✅ Real Mode настроен правильно, настоящий кошелек подключен')
+    } else {
+      console.log('❌ Real Mode настроен, но подключен демо-кошелек')
+      console.log('💡 Выполните: fixRealModeConnection()')
+    }
+  } else if (appMode === 'demo') {
+    console.log('ℹ️ Demo Mode - использование демо-кошелька корректно')
+  } else {
+    console.log('⚠️ Неопределенная конфигурация')
+  }
+  
+  return diagnosis
+}
+
+// 9. Исправление проблемы Real Mode (новая функция)
+window.fixRealModeConnection = function() {
+  console.log('\n🔧 Исправление проблемы подключения в Real Mode...');
+  
+  // Очистить конфликтующие данные
+  const keysToRemove = [
+    'walletAddress',
+    'walletMode',
+    'aztecConnectedWallet',
+    'aztecWalletDisconnected'
+  ]
+  
+  keysToRemove.forEach(key => {
+    localStorage.removeItem(key)
+    console.log('Удалено:', key)
+  })
+  
+  // Установить корректную конфигурацию Real Mode
+  localStorage.setItem('appMode', 'real')
+  localStorage.setItem('walletMode', 'aztec')
+  localStorage.setItem('realModeFixed', 'true')
+  
+  console.log('✅ Конфигурация Real Mode восстановлена')
+  console.log('🔄 Перезагрузите страницу и подключите ваш настоящий кошелек заново')
+  
+  setTimeout(() => {
+    if (confirm('Перезагрузить страницу сейчас для применения исправлений?')) {
+      window.location.reload()
+    }
+  }, 2000)
 } 

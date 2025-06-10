@@ -1,5 +1,114 @@
 # Wallet Connection Troubleshooting Guide
 
+## Проблема: В Real Mode подключается не настоящий кошелек
+
+### Описание проблемы
+Когда пользователь выбирает Real Mode и пытается подключить настоящий кошелек (Azguard, Obsidion), приложение все равно подключает демо-кошелек вместо выбранного настоящего кошелька.
+
+### Причина проблемы
+В приложении была логическая ошибка в функции `handleWalletConnected`, которая всегда создавала новый демо-кошелек через `connectWallet()` независимо от того, какой кошелек был фактически подключен пользователем.
+
+### Решение проблемы
+
+#### Автоматическое исправление (v1.3+)
+Проблема исправлена в последней версии приложения. Теперь:
+
+1. **В Demo Mode**: Создается новый демо-кошелек через Aztec Sandbox
+2. **В Real Mode**: Используется адрес фактически подключенного кошелька (Azguard, Obsidion и т.д.)
+
+#### Проверка правильности подключения
+
+Выполните в консоли браузера:
+```javascript
+// Проверить текущий режим и подключенный кошелек
+console.log('App Mode:', localStorage.getItem('appMode'))
+console.log('Wallet Mode:', localStorage.getItem('walletMode'))
+console.log('Connected Wallet:', localStorage.getItem('aztecConnectedWallet'))
+console.log('Wallet Address:', localStorage.getItem('walletAddress'))
+
+// Проверить состояние реального кошелька
+console.log('Real wallet providers:', window.ethereum?.providers?.map(p => ({
+  isMetaMask: p.isMetaMask,
+  isAzguard: p.isAzguard,
+  constructor: p.constructor.name
+})))
+```
+
+#### Ручное исправление (если проблема сохраняется)
+
+1. **Очистить состояние**:
+```javascript
+// Очистить все данные кошельков
+localStorage.removeItem('walletAddress')
+localStorage.removeItem('walletMode')
+localStorage.removeItem('aztecConnectedWallet')
+localStorage.removeItem('aztecWalletDisconnected')
+localStorage.removeItem('appMode')
+
+// Перезагрузить страницу
+window.location.reload()
+```
+
+2. **Принудительно установить Real Mode**:
+```javascript
+// Установить Real Mode
+localStorage.setItem('appMode', 'real')
+localStorage.setItem('walletMode', 'aztec')
+
+// Перезагрузить страницу
+window.location.reload()
+```
+
+3. **Подключить кошелек заново**:
+   - Выберите Real Mode
+   - Подключите ваш настоящий кошелек (Azguard, Obsidion)
+   - Убедитесь, что адрес кошелька соответствует вашему реальному кошельку
+
+### Как убедиться, что подключен правильный кошелек
+
+1. **Проверить адрес**: Адрес в приложении должен совпадать с адресом в вашем кошельке
+2. **Проверить режим**: В верхней части экрана должно отображаться "🌐 Real Mode"
+3. **Проверить консоль**: В консоли браузера должно быть сообщение "Real wallet connected with address: [ваш_адрес]"
+
+### Диагностика подключения
+
+Добавьте эту функцию в консоль для полной диагностики:
+```javascript
+function diagnoseWalletConnection() {
+  const diagnosis = {
+    appMode: localStorage.getItem('appMode'),
+    walletMode: localStorage.getItem('walletMode'),
+    connectedWallet: localStorage.getItem('aztecConnectedWallet'),
+    walletAddress: localStorage.getItem('walletAddress'),
+    realWalletProviders: window.ethereum?.providers?.length || 'single provider',
+    azguardActive: window.ethereum?.isAzguard || 
+      window.ethereum?.providers?.some(p => p.isAzguard),
+    metamaskActive: window.ethereum?.isMetaMask ||
+      window.ethereum?.providers?.some(p => p.isMetaMask)
+  }
+  
+  console.log('🔍 Wallet Connection Diagnosis:', diagnosis)
+  
+  // Определить проблему
+  if (diagnosis.appMode === 'real' && diagnosis.walletMode === 'aztec') {
+    if (diagnosis.azguardActive) {
+      console.log('✅ Все настроено правильно для Real Mode с Azguard')
+    } else {
+      console.log('❌ Real Mode выбран, но Azguard не найден')
+    }
+  } else if (diagnosis.appMode === 'demo') {
+    console.log('ℹ️ Demo Mode - используется демо-кошелек')
+  } else {
+    console.log('⚠️ Неправильная конфигурация режимов')
+  }
+  
+  return diagnosis
+}
+
+// Запустить диагностику
+diagnoseWalletConnection()
+```
+
 ## Проблема: Конфликт между MetaMask и Azguard кошельками
 
 ### Описание проблемы
@@ -186,3 +295,4 @@ javascript:(function(){
 - **v1.0**: Первоначальная версия
 - **v1.1**: Добавлено автоматическое исправление конфликтов
 - **v1.2**: Улучшена диагностика провайдеров 
+- **v1.3**: Добавлена диагностика подключения кошелька в Real Mode 

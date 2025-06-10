@@ -26,15 +26,8 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // Using Aztec context
-  const { 
-    network, 
-    isConnected, 
-    walletAddress, 
-    switchNetwork, 
-    connectWallet, 
-    disconnect 
-  } = useAztec()
+  // Using unified Aztec context
+  const { service, connectWallet, disconnect, isConnected, walletAddress, network, switchNetwork, connectRealWallet } = useAztec()
 
   // Sync app mode with wallet mode
   useEffect(() => {
@@ -100,15 +93,26 @@ export default function Home() {
 
   const handleWalletConnected = async (address: string) => {
     try {
-      // Connect wallet through Aztec context
-      const aztecAddress = await connectWallet()
-      localStorage.setItem('walletAddress', aztecAddress)
-      localStorage.setItem('walletMode', walletMode)
-      localStorage.setItem('aztecNetwork', network)
+      // In Real Mode with Aztec wallets, use the connected wallet address directly
+      if (walletMode === 'aztec' && appMode === 'real') {
+        // The address is already from the real connected wallet (Azguard, Obsidion etc.)
+        // Use the new connectRealWallet function instead of creating a new demo wallet
+        connectRealWallet(address)
+        localStorage.setItem('aztecNetwork', network)
+        console.log('Real wallet connected with address:', address)
+      } else {
+        // For demo mode, connect through Aztec context (creates new wallet)
+        const aztecAddress = await connectWallet()
+        localStorage.setItem('walletAddress', aztecAddress)
+        localStorage.setItem('walletMode', walletMode)
+        localStorage.setItem('aztecNetwork', network)
+        console.log('Demo wallet created with address:', aztecAddress)
+      }
+      
       // Clear logout flag only on new connection
       localStorage.removeItem('privyLoggedOut')
     } catch (error) {
-      console.error('Error connecting Aztec wallet:', error)
+      console.error('Error connecting wallet:', error)
     }
   }
 
