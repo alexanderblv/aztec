@@ -51,15 +51,29 @@ export default function AztecWalletConnect({
   useEffect(() => {
     const initializeSDK = async () => {
       try {
-        // Dynamic import to avoid SSR issues
-        const { AztecWalletSdk, obsidion } = await import('@nemi-fi/wallet-sdk')
+        // Try-catch wrapped dynamic import with fallback
+        let walletSdk: any;
         
-        const walletSdk = new AztecWalletSdk({
-          aztecNode: process.env.NODE_ENV === 'development' 
-            ? 'http://localhost:8080' 
-            : 'https://aztec-alpha-testnet.zkv.xyz',
-          connectors: [obsidion()],
-        })
+        try {
+          // Dynamic import with explicit module resolution
+          const { AztecWalletSdk, obsidion } = await import('@nemi-fi/wallet-sdk')
+          
+          walletSdk = new AztecWalletSdk({
+            aztecNode: process.env.NODE_ENV === 'development' 
+              ? 'http://localhost:8080' 
+              : 'https://aztec-alpha-testnet.zkv.xyz',
+            connectors: [obsidion()],
+          })
+        } catch (importError) {
+          console.warn('Failed to import @nemi-fi/wallet-sdk, falling back to mock:', importError)
+          
+          // Fallback mock implementation for development
+          walletSdk = {
+            connect: async () => { throw new Error('Wallet SDK not available') },
+            getAccount: async () => null,
+            disconnect: async () => {},
+          }
+        }
         
         setSdk(walletSdk)
         setHasSDK(true)

@@ -15,7 +15,8 @@
     "compile:testnet": "aztec-nargo compile --network testnet",
     "test": "aztec-nargo test",
     "sandbox": "aztec-sandbox",
-    "deploy:testnet": "aztec-wallet deploy --node-url https://aztec-alpha-testnet.zkv.xyz"
+    "deploy:testnet": "aztec-wallet deploy --node-url https://aztec-alpha-testnet.zkv.xyz",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "next": "^14.0.0",
@@ -40,7 +41,8 @@
     "@types/react-dom": "^18.2.0",
     "typescript": "^5.2.0",
     "eslint": "^8.51.0",
-    "eslint-config-next": "^14.0.0"
+    "eslint-config-next": "^14.0.0",
+    "patch-package": "^8.0.0"
   },
   "overrides": {
     "viem": "2.30.6"
